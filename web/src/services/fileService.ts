@@ -12,7 +12,7 @@ export class FileService {
 
     if (error) {
       console.error('Error fetching files:', error);
-      throw new Error('Error al obtener archivos');
+      throw new Error('Error getting files');
     }
 
     return data || [];
@@ -26,7 +26,7 @@ export class FileService {
 
     if (error) {
       console.error('Error deleting file:', error);
-      throw new Error('Error al eliminar archivo');
+      throw new Error('Error deleting file');
     }
 
     return true;
@@ -42,7 +42,7 @@ export class FileService {
 
     if (error) {
       console.error('Error searching files:', error);
-      throw new Error('Error al buscar archivos');
+      throw new Error('Error searching files');
     }
 
     return data || [];
@@ -60,7 +60,7 @@ export class FileService {
 
   static formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

@@ -8,12 +8,14 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setInfo(null);
+    setLoading(true);
 
     try {
       if (isLogin) {
@@ -45,7 +47,7 @@ export default function LoginPage() {
             const { SecureCloudAPI } = await import('../services/apiService');
             SecureCloudAPI.setCredentials(email, password);
           } catch (err) {
-            console.log('⚠️ API local no disponible, usando solo Supabase');
+            console.log('[WARNING] Local API not available, using Supabase only');
           }
           
           navigate("/dashboard");
@@ -75,51 +77,87 @@ export default function LoginPage() {
     } catch (err) {
       console.error("Unhandled error:", err);
       setError("Ocurrió un error inesperado.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-semibold mb-4">
-        {isLogin ? "Login" : "Register"}
-      </h1>
-      <form onSubmit={handleSubmit} className="w-full max-w-sm">
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full mb-2 p-2 border rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full mb-4 p-2 border rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          {isLogin ? "Login" : "Register"}
-        </button>
-      </form>
-      <button
-        className="mt-4 text-sm text-gray-600 underline"
-        onClick={() => {
-          setIsLogin(!isLogin);
-          setError(null);
-          setInfo(null);
-        }}
-      >
-        {isLogin ? "Create an account" : "Already have an account? Log in"}
-      </button>
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="login-title">
+          SecureCloudFS
+        </h1>
 
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-      {info && <p className="text-green-600 mt-4">{info}</p>}
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+        
+        {info && (
+          <div className="success-message">
+            {info}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              className="form-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary btn-full"
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner"></div>
+            ) : (
+              isLogin ? "Sign In" : "Create Account"
+            )}
+          </button>
+        </form>
+
+        <div className="login-spacing">
+          <button
+            className="btn btn-secondary btn-full"
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError(null);
+              setInfo(null);
+            }}
+          >
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

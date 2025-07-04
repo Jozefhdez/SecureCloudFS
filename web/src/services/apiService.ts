@@ -9,7 +9,7 @@ export class SecureCloudAPI {
   static setCredentials(email: string, password: string) {
     this.email = email;
     this.password = password;
-    console.log('✅ Credenciales API configuradas para:', email);
+    console.log('[INFO] API credentials configured for:', email);
   }
 
   private static getHeaders(): Record<string, string> {
@@ -20,9 +20,9 @@ export class SecureCloudAPI {
     if (this.email && this.password) {
       headers['X-User-Email'] = this.email;
       headers['X-User-Password'] = this.password;
-      console.log('🔑 Enviando credenciales para:', this.email);
+      console.log('[AUTH] Sending credentials for:', this.email);
     } else {
-      console.warn('⚠️ No hay credenciales configuradas');
+      console.warn('[WARN] No credentials configured');
     }
 
     return headers;
@@ -34,10 +34,10 @@ export class SecureCloudAPI {
         headers: this.getHeaders(),
       });
       
-      console.log('🌐 Test conexión API:', response.status);
+      console.log('[NETWORK] API connection test:', response.status);
       return response.ok;
     } catch (error) {
-      console.error('❌ Error conectando con API:', error);
+      console.error('[ERROR] Error connecting to API:', error);
       return false;
     }
   }
@@ -61,29 +61,29 @@ export class SecureCloudAPI {
         return { success: false, error: data.error };
       }
     } catch (error) {
-      return { success: false, error: 'Error de conexión con la API' };
+      return { success: false, error: 'Connection error with API' };
     }
   }
 
   static async getFiles(): Promise<FileMetadata[]> {
     try {
-      console.log('📁 Obteniendo archivos desde API...');
+      console.log('[FILES] Getting files from API...');
       const response = await fetch(`${API_BASE_URL}/files`, {
         headers: this.getHeaders(),
       });
 
-      console.log('📁 Respuesta API status:', response.status);
+      console.log('[FILES] API response status:', response.status);
       const data = await response.json();
       
       if (data.success) {
-        console.log('✅ Archivos obtenidos:', data.files.length);
+        console.log('[SUCCESS] Files obtained:', data.files.length);
         return data.files;
       } else {
-        console.error('❌ Error API:', data.error);
+        console.error('[ERROR] API error:', data.error);
         throw new Error(data.error);
       }
     } catch (error) {
-      console.error('❌ Error fetching files:', error);
+      console.error('[ERROR] Error fetching files:', error);
       throw error;
     }
   }
@@ -110,10 +110,10 @@ export class SecureCloudAPI {
       });
 
       if (!response.ok) {
-        throw new Error('Error descargando archivo');
+        throw new Error('Error downloading file');
       }
 
-      // Crear blob y descargar
+      // Create blob and download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       
@@ -133,7 +133,7 @@ export class SecureCloudAPI {
 
   static isAPIAvailable(): boolean {
     const available = this.email !== null && this.password !== null;
-    console.log('🔍 API disponible:', available, this.email ? `(${this.email})` : '(sin credenciales)');
+    console.log('[CHECK] API available:', available, this.email ? `(${this.email})` : '(no credentials)');
     return available;
   }
 }
