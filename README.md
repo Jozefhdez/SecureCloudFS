@@ -1,8 +1,21 @@
 # SecureCloudFS
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
+![React](https://img.shields.io/badge/react-18-blue.svg)
+![TypeScript](https://img.shields.io/badge/typescript-5-blue.svg)
+
 **Encrypted virtual filesystem with automatic synchronization**
 
 SecureCloudFS is a system that encrypts files locally using AES-256 before uploading them to Oracle Cloud Infrastructure (OCI), ensuring complete privacy even from the cloud provider. It uses Supabase for authentication and metadata management.
+
+## 🚀 Quick Links
+
+- [Installation](#quick-installation)
+- [Configuration](#detailed-configuration) 
+- [Usage](#usage)
+- [Security](#security)
+- [Contributing](#contributing)
 
 ## Features
 
@@ -12,15 +25,18 @@ SecureCloudFS is a system that encrypts files locally using AES-256 before uploa
 - **Oracle Cloud Storage**: Scalable and secure storage
 - **Supabase Authentication**: Secure user and session management
 - **Integrated CLI**: Command-line tools for advanced management
+- **Web Dashboard**: Modern React frontend for file management
+- **REST API**: HTTP API for secure file operations
 
 ## Technologies
 
 - **Backend**: Python 3.8+
+- **Frontend**: React 18 + TypeScript + Vite
 - **Encryption**: cryptography (AES-256 + PBKDF2)
 - **Cloud Storage**: Oracle Cloud Infrastructure (OCI)
 - **Authentication**: Supabase Auth
 - **Database**: Supabase (PostgreSQL)
-- **Monitoring**: watchdog
+- **File Monitoring**: watchdog
 
 ## Requirements
 
@@ -33,7 +49,7 @@ SecureCloudFS is a system that encrypts files locally using AES-256 before uploa
 
 1. **Clone repository**:
    ```bash
-   git clone <your-repo>
+   git clone https://github.com/Jozefhdez/SecureCloudFS.git
    cd SecureCloudFS
    ```
 
@@ -44,11 +60,25 @@ SecureCloudFS is a system that encrypts files locally using AES-256 before uploa
 
 3. **Configure environment variables**:
    ```bash
+   # Backend configuration
    cp .env.example .env
    # Edit .env with your credentials
+   
+   # Frontend configuration
+   cd web
+   cp .env.example .env
+   # Edit .env with your Supabase credentials
+   cd ..
    ```
 
-4. **Configure database**:
+4. **Install frontend dependencies**:
+   ```bash
+   cd web
+   npm install
+   cd ..
+   ```
+
+5. **Configure database**:
    - Execute `setup_database.sql` in Supabase SQL Editor
 
 ## Detailed Configuration
@@ -86,14 +116,25 @@ OCI_BUCKET_NAME=your_bucket
 
 ## Usage
 
-### Main Interface
+### File Synchronization
 
 ```bash
 # Activate virtual environment
 source venv/bin/activate
 
-# Run SecureCloudFS
+# Run SecureCloudFS file sync
 python scfs_sync.py
+```
+
+### Web Dashboard
+
+```bash
+# Start the API server
+python scfs_api.py
+
+# In another terminal, start the frontend
+cd web
+npm run dev
 ```
 
 ### CLI (Command Line Interface)
@@ -124,17 +165,24 @@ python scfs_cli.py --email your@email.com --password your_password download file
 
 ```
 SecureCloudFS/
-├── scfs_sync.py          # Main application
+├── scfs_sync.py          # File synchronization service
 ├── scfs_cli.py           # Command line interface
-├── scfs_api.py           # API for web dashboard
+├── scfs_api.py           # REST API server
 ├── requirements.txt      # Python dependencies
 ├── setup.sh             # Installation script
 ├── setup_database.sql   # Database configuration
 ├── .env.example         # Environment variables template
+├── .gitignore           # Git ignore rules
+├── SECURITY.md          # Security policy
 ├── README.md            # Documentation
-└── web/                 # React frontend (optional)
+└── web/                 # React frontend
     ├── src/
-    ├── package.json
+    │   ├── components/  # React components
+    │   ├── pages/       # Application pages
+    │   ├── services/    # API communication
+    │   └── types/       # TypeScript definitions
+    ├── package.json     # Node.js dependencies
+    ├── .env.example     # Frontend environment template
     └── ...
 ```
 
@@ -200,7 +248,8 @@ This project is under the MIT License. See `LICENSE` file for more details.
 ## Author
 
 **Jozef Hernandez**
-- GitHub: [@jozefhdez](https://github.com/jozefhdez)
+- GitHub: [@Jozefhdez](https://github.com/Jozefhdez)
+- Repository: [SecureCloudFS](https://github.com/Jozefhdez/SecureCloudFS)
 
 ## Acknowledgments
 
