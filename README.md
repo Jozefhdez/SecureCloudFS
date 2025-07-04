@@ -233,14 +233,6 @@ files = scfs.list_user_files()
 scfs.download_file(oci_object_name, local_path)
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -am 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
-5. Create Pull Request
-
 ## License
 
 This project is under the MIT License. See `LICENSE` file for more details.
@@ -248,8 +240,7 @@ This project is under the MIT License. See `LICENSE` file for more details.
 ## Author
 
 **Jozef Hernandez**
-- GitHub: [@Jozefhdez](https://github.com/Jozefhdez)
-- Repository: [SecureCloudFS](https://github.com/Jozefhdez/SecureCloudFS)
+- LinkedIn: [@Jozefhdez](https://www.linkedin.com/in/jozefhdez/)
 
 ## Acknowledgments
 
