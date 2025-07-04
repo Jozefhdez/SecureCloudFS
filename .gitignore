@@ -1,2 +1,99 @@
+# Environment variables
 .env
-.git
+.env.local
+.env.production
+.env.staging
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Logs
+*.log
+securecloud.log
+logs/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Test files
+test_*/
+*.test
+coverage/
+
+# Encrypted files (local testing)
+*.enc
+.encrypted/
+
+# OCI credentials (backup safety)
+*.pem
+oci_config
+
+# Node.js (for web frontend)
+web/node_modules/
+web/dist/
+web/.env
+web/.env.local
+web/.env.production
+web/.env.staging
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+
+# Build outputs
+web/build/
+web/dist/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
