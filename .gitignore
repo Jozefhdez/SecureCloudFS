@@ -1,10 +1,12 @@
-# Environment variables
+# Environment variables (with real credentials)
 .env
 .env.local
+.env.production
 
-# Keep .env.example and .env.production as templates
+# Keep only examples as templates
 !.env.example
-!.env.production
+!web/.env.example
+!web/.env.production.example
 
 # Python
 __pycache__/
