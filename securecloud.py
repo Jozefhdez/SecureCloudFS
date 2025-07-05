@@ -225,7 +225,26 @@ def sync_folder(client: SecureCloudClient, folder_path: str):
         return
     
     print(f"👀 Watching folder: {folder_path}")
-    print("🔄 Auto-sync started. Press Ctrl+C to stop.")
+    print("🔄 Starting initial sync of existing files...")
+    print("-" * 50)
+    
+    # Initial sync: upload all existing files
+    def sync_existing_files(directory):
+        """Recursively sync all existing files in directory"""
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Skip hidden files and system files
+                if not os.path.basename(file).startswith('.'):
+                    print(f"📄 Found existing file: {os.path.relpath(file_path, folder_path)}")
+                    client.upload_file(file_path)
+    
+    # Perform initial sync
+    sync_existing_files(folder_path)
+    
+    print("-" * 50)
+    print("✅ Initial sync completed!")
+    print("🔄 Now monitoring for changes. Press Ctrl+C to stop.")
     print("-" * 50)
     
     event_handler = FolderSyncHandler(client)
@@ -249,32 +268,35 @@ def main():
     print()
     
     parser = argparse.ArgumentParser(description='SecureCloudFS Client')
-    parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
-    parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     
-    subparsers = parser.add_subparsers(dest='command', help='Commands')
+    # Add subcommands first
+    subparsers = parser.add_subparsers(dest='command', help='Commands', required=True)
     
     # List command
     list_parser = subparsers.add_parser('list', help='List your files')
+    list_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
+    list_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     
     # Upload command
     upload_parser = subparsers.add_parser('upload', help='Upload a file')
+    upload_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
+    upload_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     upload_parser.add_argument('--file', required=True, help='File to upload')
     
     # Download command
     download_parser = subparsers.add_parser('download', help='Download a file')
+    download_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
+    download_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     download_parser.add_argument('--file', required=True, help='Filename to download')
     download_parser.add_argument('--output', required=True, help='Output path')
     
     # Sync command
     sync_parser = subparsers.add_parser('sync', help='Sync a folder automatically')
+    sync_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
+    sync_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     sync_parser.add_argument('--folder', required=True, help='Folder to sync')
     
     args = parser.parse_args()
-    
-    if not args.command:
-        parser.print_help()
-        return
     
     client = SecureCloudClient(args.email, args.password)
     
