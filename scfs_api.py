@@ -411,8 +411,20 @@ def root():
         "service": "SecureCloudFS API",
         "status": "running",
         "message": "This is the backend API. Use the SecureCloudFS client to interact with the service.",
-        "client_download": "https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/securecloud.py"
+        "client_download": "https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/securecloud.py",
+        "endpoints": {
+            "health": "/api/health",
+            "debug": "/api/debug",
+            "files": "/api/files",
+            "upload": "/api/files/upload",
+            "download": "/api/files/download/<file_id>"
+        }
     })
+
+@app.route('/test', methods=['GET'])
+def test():
+    """Simple test endpoint"""
+    return "OK"
 
 def main():
     """Main function to start the Flask server"""
@@ -425,9 +437,17 @@ def main():
     print("🚀 Starting SecureCloudFS Backend API")
     print(f"   Host: {args.host}")
     print(f"   Port: {args.port}")
+    print(f"   OCI Available: {OCI_AVAILABLE}")
+    print(f"   Supabase Available: {SUPABASE_AVAILABLE}")
+    print(f"   OCI Client: {'✅' if object_storage_client else '❌'}")
+    print(f"   Supabase Client: {'✅' if supabase else '❌'}")
     print("=" * 40)
     
-    app.run(host=args.host, port=args.port, debug=False)
+    try:
+        app.run(host=args.host, port=args.port, debug=False)
+    except Exception as e:
+        print(f"❌ Failed to start server: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
