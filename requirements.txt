@@ -1,10 +1,15 @@
 # SecureCloudFS Backend Dependencies
 # For Railway deployment only - client installs its own dependencies
 
-# Core dependencies
+# Flask backend
 flask>=2.3.0
 flask-cors>=4.0.0
+
+# Cloud storage and auth
 supabase>=2.14.0
 oci>=2.155.0
+
+# Core dependencies
 cryptography>=43.0.0
 python-dotenv>=1.0.0
+requests>=2.31.0
