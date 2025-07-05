@@ -12,12 +12,135 @@ import os
 import sys
 import json
 import argparse
+import uuid
+import hashlib
+from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
+
+# Import OCI and Supabase after Flask to avoid import issues
+try:
+    import oci
+    from supabase import create_client, Client
+    
+    # OCI Configuration
+    OCI_CONFIG = {
+        "user": os.getenv("OCI_USER_OCID"),
+        "fingerprint": os.getenv("OCI_FINGERPRINT"),
+        "tenancy": os.getenv("OCI_TENANCY_OCID"),
+        "region": os.getenv("OCI_REGION"),
+        "key_content": os.getenv("OCI_KEY_CONTENT", "")  # Will be set from environment
+    }
+    
+    OCI_NAMESPACE = os.getenv("OCI_NAMESPACE")
+    OCI_BUCKET_NAME = os.getenv("OCI_BUCKET_NAME")
+    
+    # Supabase Configuration  
+    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY = os.getenv("SUPABASE_API_KEY")
+    
+    # Initialize clients
+    if all([OCI_CONFIG["user"], OCI_CONFIG["fingerprint"], OCI_CONFIG["tenancy"]]):
+        object_storage_client = oci.object_storage.ObjectStorageClient(OCI_CONFIG)
+    else:
+        object_storage_client = None
+        
+    if SUPABASE_URL and SUPABASE_KEY:
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    else:
+        supabase = None
+        
+except ImportError as e:
+    print(f"⚠️  Import error: {e}")
+    object_storage_client = None
+    supabase = None
+
+def authenticate_user(email: str, password: str):
+    """Authenticate user with Supabase"""
+    if not supabase:
+        return False, "Supabase not configured"
+    
+    try:
+        response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+        return True, response
+    except Exception as e:
+        return False, str(e)
+
+def get_user_files(user_id: str):
+    """Get user files from Supabase database"""
+    if not supabase:
+        return []
+    
+    try:
+        response = supabase.table("files").select("*").eq("user_id", user_id).execute()
+        return response.data
+    except Exception as e:
+        print(f"Error getting user files: {e}")
+        return []
+
+def store_file_metadata(user_id: str, filename: str, file_size: int, file_hash: str, oci_object_name: str):
+    """Store file metadata in Supabase"""
+    if not supabase:
+        return False, "Supabase not configured"
+    
+    try:
+        file_data = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "filename": filename,
+            "size": file_size,
+            "hash": file_hash,
+            "oci_object_name": oci_object_name,
+            "uploaded_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        response = supabase.table("files").insert(file_data).execute()
+        return True, response.data[0] if response.data else file_data
+    except Exception as e:
+        return False, str(e)
+
+def upload_to_oci(file_data: bytes, object_name: str):
+    """Upload file to OCI Object Storage"""
+    if not object_storage_client:
+        return False, "OCI not configured"
+    
+    try:
+        response = object_storage_client.put_object(
+            namespace_name=OCI_NAMESPACE,
+            bucket_name=OCI_BUCKET_NAME,
+            object_name=object_name,
+            put_object_body=file_data
+        )
+        return True, response
+    except Exception as e:
+        return False, str(e)
+
+def download_from_oci(object_name: str):
+    """Download file from OCI Object Storage"""
+    if not object_storage_client:
+        return False, "OCI not configured"
+    
+    try:
+        response = object_storage_client.get_object(
+            namespace_name=OCI_NAMESPACE,
+            bucket_name=OCI_BUCKET_NAME,
+            object_name=object_name
+        )
+        return True, response.data.content
+    except Exception as e:
+        return False, str(e)
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -42,10 +165,23 @@ def list_files():
                 "error": "Authentication required"
             }), 401
         
-        # For now, return empty list (backend storage integration needed)
+        # Authenticate user
+        auth_success, auth_result = authenticate_user(email, password)
+        if not auth_success:
+            return jsonify({
+                "success": False,
+                "error": f"Authentication failed: {auth_result}"
+            }), 401
+        
+        # Get user ID from auth result
+        user_id = auth_result.user.id if hasattr(auth_result, 'user') else email
+        
+        # Get user files
+        files = get_user_files(user_id)
+        
         return jsonify({
             "success": True,
-            "files": []
+            "files": files
         })
         
     except Exception as e:
@@ -68,11 +204,64 @@ def upload_file():
                 "error": "Authentication required"
             }), 401
         
-        # For now, simulate successful upload
+        # Authenticate user
+        auth_success, auth_result = authenticate_user(email, password)
+        if not auth_success:
+            return jsonify({
+                "success": False,
+                "error": f"Authentication failed: {auth_result}"
+            }), 401
+        
+        # Get user ID
+        user_id = auth_result.user.id if hasattr(auth_result, 'user') else email
+        
+        # Get file data from request
+        if 'file' not in request.files:
+            return jsonify({
+                "success": False,
+                "error": "No file provided"
+            }), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({
+                "success": False,
+                "error": "No file selected"
+            }), 400
+        
+        # Read file data
+        file_data = file.read()
+        file_size = len(file_data)
+        file_hash = hashlib.sha256(file_data).hexdigest()
+        
+        # Generate unique object name for OCI
+        oci_object_name = f"{user_id}/{file_hash}_{file.filename}"
+        
+        # Upload to OCI
+        upload_success, upload_result = upload_to_oci(file_data, oci_object_name)
+        if not upload_success:
+            return jsonify({
+                "success": False,
+                "error": f"Upload to storage failed: {upload_result}"
+            }), 500
+        
+        # Store metadata in Supabase
+        metadata_success, metadata_result = store_file_metadata(
+            user_id, file.filename, file_size, file_hash, oci_object_name
+        )
+        
+        if not metadata_success:
+            return jsonify({
+                "success": False,
+                "error": f"Metadata storage failed: {metadata_result}"
+            }), 500
+        
         return jsonify({
             "success": True,
             "message": "File uploaded successfully",
-            "file_id": "temp_id_123"
+            "file_id": metadata_result.get("id"),
+            "filename": file.filename,
+            "size": file_size
         })
         
     except Exception as e:
@@ -95,11 +284,58 @@ def download_file(file_id):
                 "error": "Authentication required"
             }), 401
         
-        # For now, return error (storage integration needed)
-        return jsonify({
-            "success": False,
-            "error": "File not found"
-        }), 404
+        # Authenticate user
+        auth_success, auth_result = authenticate_user(email, password)
+        if not auth_success:
+            return jsonify({
+                "success": False,
+                "error": f"Authentication failed: {auth_result}"
+            }), 401
+        
+        # Get user ID
+        user_id = auth_result.user.id if hasattr(auth_result, 'user') else email
+        
+        # Get file metadata from Supabase
+        if not supabase:
+            return jsonify({
+                "success": False,
+                "error": "Database not configured"
+            }), 500
+        
+        try:
+            response = supabase.table("files").select("*").eq("id", file_id).eq("user_id", user_id).execute()
+            if not response.data:
+                return jsonify({
+                    "success": False,
+                    "error": "File not found"
+                }), 404
+            
+            file_metadata = response.data[0]
+            oci_object_name = file_metadata["oci_object_name"]
+            
+            # Download from OCI
+            download_success, file_data = download_from_oci(oci_object_name)
+            if not download_success:
+                return jsonify({
+                    "success": False,
+                    "error": f"Download from storage failed: {file_data}"
+                }), 500
+            
+            # Return file data
+            from flask import Response
+            return Response(
+                file_data,
+                mimetype='application/octet-stream',
+                headers={
+                    'Content-Disposition': f'attachment; filename="{file_metadata["filename"]}"'
+                }
+            )
+            
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "error": f"Database error: {str(e)}"
+            }), 500
         
     except Exception as e:
         return jsonify({

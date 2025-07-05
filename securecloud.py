@@ -156,10 +156,41 @@ class SecureCloudClient:
         encrypted_data = self.fernet.encrypt(file_data)
         file_hash = hashlib.sha256(file_data).hexdigest()
         
-        # Upload to API (simplified - in real implementation would use multipart)
         print(f"☁️  Uploading {os.path.basename(file_path)}...")
-        print("✅ File uploaded and encrypted successfully!")
-        return True
+        
+        # Prepare multipart upload
+        files = {
+            'file': (os.path.basename(file_path), encrypted_data, 'application/octet-stream')
+        }
+        
+        headers = {
+            'X-User-Email': self.email,
+            'X-User-Password': self.password
+        }
+        
+        try:
+            response = self.session.post(
+                f"{API_BASE_URL}/files/upload",
+                files=files,
+                headers=headers,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success"):
+                    print("✅ File uploaded and encrypted successfully!")
+                    return True
+                else:
+                    print(f"❌ Upload failed: {result.get('error', 'Unknown error')}")
+                    return False
+            else:
+                print(f"❌ Upload failed with status {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Upload error: {e}")
+            return False
     
     def download_file(self, filename: str, output_path: str):
         """Download and decrypt file"""
