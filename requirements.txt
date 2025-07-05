@@ -1,10 +1,10 @@
-# SecureCloudFS Client Dependencies
-# Install with: pip install -r requirements.txt
+# SecureCloudFS Backend Dependencies
+# For Railway deployment only - client installs its own dependencies
 
-# Core dependencies for SecureCloudFS client
-cryptography==43.0.1
-oci==2.155.0
-watchdog==6.0.0
-python-dotenv==1.0.0
-requests==2.31.0
-supabase==2.14.0
+# Core dependencies
+flask>=2.3.0
+flask-cors>=4.0.0
+supabase>=2.14.0
+oci>=2.155.0
+cryptography>=43.0.0
+python-dotenv>=1.0.0

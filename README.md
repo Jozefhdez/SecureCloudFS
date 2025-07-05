@@ -7,33 +7,42 @@
 
 SecureCloudFS encrypts your files with AES-256 *before* they leave your computer. Even we can't see your data.
 
-## 🚀 Start Using SecureCloudFS
+> **⚠️ Important**: To upload files, you must download and run the desktop client. The web app is only for viewing and downloading existing files.
 
-### 🌐 Web App (Instant Access)
-No installation needed. Use from any browser:
+## 🚀 How to Use SecureCloudFS
+
+### 🌐 Web App (View & Download Only)
+**⚠️ The web app CANNOT upload files. Use the desktop client below for uploads.**
+
+Access your files from any browser:
 
 **👉 [Open SecureCloudFS Web App](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/)**
 
-1. Create your free account
-2. Upload files (they get encrypted automatically)
-3. Access from anywhere
+- ✅ View all your encrypted files
+- ✅ Download files to your device
+- ✅ Works on any device with internet
+- ❌ Cannot upload files (use desktop client for uploads)
 
-### 💻 Desktop Sync (Optional)
-Want automatic folder syncing? Install our desktop client:
+### 💻 Desktop Client (Required for Uploading & Syncing)
+**You need this to upload files or sync folders.**
+
+Download one file and run:
 
 ```bash
-# 1. Download and install
-git clone https://github.com/Jozefhdez/SecureCloudFS.git
-cd SecureCloudFS
+# 1. Download the client (one file only)
+curl -O https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/securecloud.py
 
-# 2. Run the installer
-./install.sh
+# 2. Install dependencies (first time only)
+pip install requests cryptography watchdog python-dotenv oci supabase
 
-# 3. Sync a folder automatically  
-python3 scfs_sync.py --email your@email.com --password yourpassword --watch /path/to/folder
+# 3. List your files
+python3 securecloud.py list --email your@email.com --password yourpass
+
+# 4. Upload and sync a folder
+python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
 ```
 
-**That's it!** Any file you put in that folder gets encrypted and uploaded automatically.
+**Why both?** Files are encrypted on your computer before upload, so we need local software for security.
 ## ❓ Why SecureCloudFS?
 
 - **🔐 True Privacy**: Files are encrypted *before* upload with your password
@@ -42,21 +51,26 @@ python3 scfs_sync.py --email your@email.com --password yourpassword --watch /pat
 - **🆓 Free to Use**: No credit card required
 - **🛡️ Zero Knowledge**: We cannot see your files, even if we wanted to
 
-## 🔧 Command Line Tools
+## 🔧 Command Line Examples
 
 ### List your files
 ```bash
-python3 scfs_cli.py --email your@email.com --password yourpass list
+python3 securecloud.py list --email your@email.com --password yourpass
 ```
 
-### Download a specific file
+### Upload a file
 ```bash
-python3 scfs_cli.py --email your@email.com --password yourpass download --file "document.pdf" --output "./document.pdf"
+python3 securecloud.py upload --email your@email.com --password yourpass --file document.pdf
 ```
 
-### Sync a folder once
+### Download a file
 ```bash
-python3 scfs_cli.py --email your@email.com --password yourpass sync /path/to/folder
+python3 securecloud.py download --email your@email.com --password yourpass --file document.pdf --output ./document.pdf
+```
+
+### Auto-sync a folder
+```bash
+python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
 ```
 
 ## 🔒 How Secure Is It?
@@ -75,8 +89,14 @@ python3 scfs_cli.py --email your@email.com --password yourpass sync /path/to/fol
 
 ## ⚡ Quick FAQ
 
+**Q: Can I use just the web app?**
+A: Only for viewing and downloading files. You need the desktop client to upload files securely.
+
+**Q: Why can't I upload through the web?**
+A: Files must be encrypted on YOUR computer before upload for true security. Web browsers can't do this safely.
+
 **Q: Do I need to install anything?**
-A: No! Use the web app instantly. Desktop sync is optional.
+A: Just Python and one small script. No complex setup required.
 
 **Q: Can you see my files?**
 A: No. They're encrypted with your password before leaving your computer.
@@ -89,9 +109,10 @@ A: Yes, the service is free to use.
 
 ## 🆘 Need Help?
 
-1. Try the [Web App](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/) first
-2. Check your email/password if login fails
-3. Open an issue on GitHub for technical problems
+1. For file uploads/syncing issues: Download and run the desktop client
+2. For viewing/downloading issues: Try the [Web App](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/)
+3. Check your email/password if login fails
+4. Open an issue on GitHub for technical problems
 
 ---
 
