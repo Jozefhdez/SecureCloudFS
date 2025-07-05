@@ -11,11 +11,45 @@ SecureCloudFS is a system that encrypts files locally using AES-256 before uploa
 
 ## 🚀 Quick Links
 
-- [Installation](#quick-installation)
+- [Deployment Options](#deployment-options)
+- [Local Development](#local-development)
 - [Configuration](#detailed-configuration) 
 - [Usage](#usage)
 - [Security](#security)
 - [Contributing](#contributing)
+
+## Deployment Options
+
+### Option 1: Full Cloud Deployment (Recommended for Production)
+
+**Frontend**: Deploy to Vercel/Netlify
+**Backend API**: Deploy to Railway/Render/DigitalOcean
+
+- ✅ **Web Dashboard**: Complete file management interface
+- ✅ **REST API**: Secure file operations via HTTP
+- ✅ **No local setup required**: Access from any browser
+- ❌ **No automatic file sync**: Upload files manually via web interface
+- ❌ **No CLI access**: Web-only interface
+
+### Option 2: Hybrid (Cloud + Local CLI)
+
+**Frontend**: Deployed (Vercel)
+**Backend API**: Deployed (Railway)
+**Local Components**: CLI and sync service running locally
+
+- ✅ **Web Dashboard**: Complete online access
+- ✅ **Automatic sync**: Real-time file monitoring and upload
+- ✅ **CLI tools**: Command-line file management
+- ⚠️ **Requires local setup**: Python environment needed for sync/CLI
+
+### Option 3: Fully Local Development
+
+All components running locally for development/testing
+
+- ✅ **Full functionality**: All features available
+- ✅ **Development environment**: Perfect for testing and modifications
+- ❌ **Local only**: No remote access
+- ❌ **Manual startup**: Requires running multiple services
 
 ## Features
 
@@ -45,7 +79,53 @@ SecureCloudFS is a system that encrypts files locally using AES-256 before uploa
 - Configured Supabase project
 - Internet access
 
-## Quick Installation
+## Quick Deployment
+
+### Deploy Backend API (Required)
+
+1. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Deploy SecureCloudFS"
+   git push
+   ```
+
+2. **Deploy to Railway** (Recommended):
+   - Visit [railway.app](https://railway.app)
+   - Connect your GitHub repository
+   - Deploy from root directory
+   - Set environment variables (see [Configuration](#detailed-configuration))
+
+3. **Alternative platforms**:
+   - **Render**: [render.com](https://render.com)
+   - **DigitalOcean App Platform**: [digitalocean.com](https://digitalocean.com)
+
+### Deploy Frontend
+
+1. **Deploy to Vercel**:
+   - Visit [vercel.com](https://vercel.com)
+   - Connect GitHub repository
+   - Set root directory to `web/`
+   - Add environment variable: `VITE_API_BASE_URL=https://your-backend-url.railway.app/api`
+
+### Local Components (Optional)
+
+For automatic file synchronization and CLI access:
+
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Start file synchronization
+python scfs_sync.py --email your@email.com --password yourpassword --watch /path/to/folder
+
+# Use CLI tools
+python scfs_cli.py --email your@email.com --password yourpassword list
+```
+
+## Local Development
+
+### Quick Installation
 
 1. **Clone repository**:
    ```bash
@@ -116,19 +196,38 @@ OCI_BUCKET_NAME=your_bucket
 
 ## Usage
 
-### File Synchronization
+### Web Dashboard (Cloud Deployment)
+
+1. Access your deployed frontend URL (e.g., `https://your-app.vercel.app`)
+2. Sign in or create account
+3. Upload, download, and manage files through the web interface
+
+### Automatic File Synchronization (Local Component)
+
+```bash
+# Start monitoring a folder for automatic encryption and upload
+python scfs_sync.py --email your@email.com --password yourpassword --watch /path/to/folder
+```
+
+### Command Line Interface (Local Component)
+
+```bash
+# List all synchronized files
+python scfs_cli.py --email your@email.com --password yourpassword list
+
+# Download specific file
+python scfs_cli.py --email your@email.com --password yourpassword download file.txt ./download/
+
+# Manual file synchronization
+python scfs_cli.py --email your@email.com --password yourpassword sync /path/folder
+```
+
+### Local Development
 
 ```bash
 # Activate virtual environment
 source venv/bin/activate
 
-# Run SecureCloudFS file sync
-python scfs_sync.py
-```
-
-### Web Dashboard
-
-```bash
 # Start the API server
 python scfs_api.py
 

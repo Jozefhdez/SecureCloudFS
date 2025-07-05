@@ -11,6 +11,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import threading
 import logging
+from datetime import datetime
 
 from scfs_sync import SecureCloudFS, SecureCloudAuth
 
@@ -46,6 +47,8 @@ class SecureCloudAPIHandler(BaseHTTPRequestHandler):
                 self.handle_download_file(file_id, query_params)
             elif path == '/api/auth/verify':
                 self.handle_verify_auth(query_params)
+            elif path == '/api/health':
+                self.handle_health_check()
             else:
                 self.send_error_response(404, "Endpoint no encontrado")
                 
@@ -237,6 +240,14 @@ class SecureCloudAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(500, f"Error eliminando archivo: {str(e)}")
     
+    def handle_health_check(self):
+        """Health check endpoint for deployment platforms"""
+        self.send_json_response({
+            'status': 'healthy',
+            'service': 'SecureCloudFS API',
+            'timestamp': datetime.now().isoformat()
+        })
+    
     def get_auth_token(self):
         """Extraer token de autenticación del header"""
         auth_header = self.headers.get('Authorization')
@@ -303,9 +314,13 @@ def start_api_server(port=8080):
 
 if __name__ == "__main__":
     import argparse
+    import os
     
     parser = argparse.ArgumentParser(description="SecureCloudFS API Server")
-    parser.add_argument("--port", type=int, default=8080, help="Puerto del servidor (default: 8080)")
+    
+    # Use PORT environment variable for cloud deployment, fallback to 8080 for local
+    default_port = int(os.environ.get('PORT', 8080))
+    parser.add_argument("--port", type=int, default=default_port, help="Server port (default: 8080 or PORT env var)")
     args = parser.parse_args()
     
     start_api_server(args.port)
