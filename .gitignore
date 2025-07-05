@@ -5,6 +5,7 @@
 
 # Keep only examples as templates
 !.env.example
+!.env.client
 !web/.env.example
 !web/.env.production.example
 
