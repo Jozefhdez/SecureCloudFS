@@ -196,27 +196,41 @@ class SecureCloudOCI:
     def __init__(self):
         """Initialize OCI client using environment variables"""
         try:
-            # Configuración OCI desde variables de entorno
+            # Get OCI configuration from environment variables
+            key_file = os.getenv("OCI_KEY_FILE")
+            private_key_content = os.getenv("OCI_PRIVATE_KEY")
+            
+            # Use either key file path or private key content
+            if private_key_content:
+                # For cloud deployment: use private key content directly
+                import tempfile
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as temp_key_file:
+                    temp_key_file.write(private_key_content)
+                    key_file = temp_key_file.name
+            elif not key_file:
+                raise ValueError("Either OCI_KEY_FILE or OCI_PRIVATE_KEY environment variable is required")
+            
+            # OCI configuration from environment variables
             config = {
                 "user": os.getenv("OCI_USER_OCID"),
-                "key_file": os.getenv("OCI_KEY_FILE"),
+                "key_file": key_file,
                 "fingerprint": os.getenv("OCI_FINGERPRINT"),
                 "tenancy": os.getenv("OCI_TENANCY_OCID"),
                 "region": os.getenv("OCI_REGION", "us-ashburn-1")
             }
             
-            # Validar configuración
+            # Validate configuration
             required_keys = ["user", "key_file", "fingerprint", "tenancy"]
             for key in required_keys:
                 if not config[key]:
-                    raise ValueError(f"Variable de entorno OCI_{key.upper()} es requerida")
+                    raise ValueError(f"Environment variable OCI_{key.upper()} is required")
             
             self.config = config
             self.namespace = os.getenv("OCI_NAMESPACE")
             self.bucket_name = os.getenv("OCI_BUCKET_NAME")
             
             if not self.namespace or not self.bucket_name:
-                raise ValueError("OCI_NAMESPACE y OCI_BUCKET_NAME son requeridos")
+                raise ValueError("OCI_NAMESPACE and OCI_BUCKET_NAME are required")
             
             # Inicializar cliente
             self.object_storage = oci.object_storage.ObjectStorageClient(config)
