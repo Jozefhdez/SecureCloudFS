@@ -24,17 +24,17 @@ supabase = None
 
 try:
     import oci
-    print("✅ OCI library imported successfully")
+    print("OCI library imported successfully")
     OCI_AVAILABLE = True
 except ImportError as e:
-    print(f"⚠️  OCI library not available: {e}")
+    print(f"OCI library not available: {e}")
 
 try:
     from supabase import create_client, Client
-    print("✅ Supabase library imported successfully")
+    print("Supabase library imported successfully")
     SUPABASE_AVAILABLE = True
 except ImportError as e:
-    print(f"⚠️  Supabase library not available: {e}")
+    print(f"Supabase library not available: {e}")
 
 # Configuration from environment
 def get_oci_key_content():
@@ -50,7 +50,7 @@ def get_oci_key_content():
             with open(key_path, 'r') as f:
                 return f.read()
         except Exception as e:
-            print(f"❌ Failed to read OCI key file {key_file}: {e}")
+            print(f"Failed to read OCI key file {key_file}: {e}")
     return ""
 
 OCI_CONFIG = {
@@ -70,28 +70,28 @@ SUPABASE_KEY = os.getenv("SUPABASE_API_KEY", "")
 if OCI_AVAILABLE and all([OCI_CONFIG["user"], OCI_CONFIG["fingerprint"], OCI_CONFIG["tenancy"]]):
     try:
         object_storage_client = oci.object_storage.ObjectStorageClient(OCI_CONFIG)
-        print("✅ OCI client initialized successfully")
+        print("OCI client initialized successfully")
     except Exception as e:
-        print(f"❌ Failed to initialize OCI client: {e}")
+        print(f"Failed to initialize OCI client: {e}")
         object_storage_client = None
 else:
-    print("⚠️  OCI client not initialized (missing config or library)")
+    print("OCI client not initialized (missing config or library)")
 
 if SUPABASE_AVAILABLE and SUPABASE_URL and SUPABASE_KEY:
     try:
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("✅ Supabase client initialized successfully")
+        print("Supabase client initialized successfully")
     except Exception as e:
-        print(f"❌ Failed to initialize Supabase client: {e}")
+        print(f"Failed to initialize Supabase client: {e}")
         supabase = None
 else:
-    print("⚠️  Supabase client not initialized (missing config or library)")
+    print("Supabase client not initialized (missing config or library)")
 
 def authenticate_user(email: str, password: str):
     """Authenticate user with Supabase"""
     if not supabase:
         # Fallback: simulate successful auth for development
-        print(f"⚠️  Supabase not available, simulating auth for {email}")
+        print(f"Supabase not available, simulating auth for {email}")
         return True, type('MockAuth', (), {
             'user': type('MockUser', (), {
                 'id': email,  # Using email as fallback for development
@@ -105,20 +105,20 @@ def authenticate_user(email: str, password: str):
             "password": password
         })
         if hasattr(response, 'user') and response.user:
-            print(f"✅ User authenticated successfully: {response.user.id}")
+            print(f"User authenticated successfully: {response.user.id}")
             return True, response
         else:
-            print(f"❌ Authentication failed: No user returned")
+            print(f"Authentication failed: No user returned")
             return False, "Authentication failed"
     except Exception as e:
-        print(f"❌ Authentication error: {e}")
+        print(f"Authentication error: {e}")
         return False, str(e)
 
 def get_user_files(user_id: str):
     """Get user files from Supabase database"""
     if not supabase:
         # Fallback: return empty list for development
-        print(f"⚠️  Supabase not available, returning empty file list for {user_id}")
+        print(f"Supabase not available, returning empty file list for {user_id}")
         return []
     
     try:
@@ -132,7 +132,7 @@ def store_file_metadata(user_id: str, filename: str, file_size: int, file_hash: 
     """Store file metadata in Supabase"""
     if not supabase:
         # Fallback: simulate successful storage for development
-        print(f"⚠️  Supabase not available, simulating metadata storage for {filename}")
+        print(f"Supabase not available, simulating metadata storage for {filename}")
         return True, {
             "id": str(uuid.uuid4()),
             "user_id": user_id,
@@ -160,14 +160,14 @@ def store_file_metadata(user_id: str, filename: str, file_size: int, file_hash: 
         response = supabase.table("file_metadata").insert(file_data).execute()
         
         if response.data:
-            print(f"✅ Metadata stored successfully for {filename}")
+            print(f"Metadata stored successfully for {filename}")
             return True, response.data[0]
         else:
-            print(f"❌ No data returned when storing metadata for {filename}")
+            print(f"No data returned when storing metadata for {filename}")
             return False, "No data returned from database"
             
     except Exception as e:
-        print(f"❌ Database error storing metadata for {filename}: {e}")
+        print(f"Database error storing metadata for {filename}: {e}")
         print(f"   Error type: {type(e).__name__}")
         print(f"   Error details: {str(e)}")
         return False, str(e)
@@ -176,7 +176,7 @@ def upload_to_oci(file_data: bytes, object_name: str):
     """Upload file to OCI Object Storage"""
     if not object_storage_client:
         # Fallback: simulate successful upload for development
-        print(f"⚠️  OCI not available, simulating upload for {object_name}")
+        print(f"OCI not available, simulating upload for {object_name}")
         return True, "Simulated upload successful"
     
     try:
@@ -209,7 +209,7 @@ def delete_from_oci(object_name: str):
     """Delete file from OCI Object Storage"""
     if not object_storage_client:
         # Fallback: simulate successful deletion for development
-        print(f"⚠️  OCI not available, simulating deletion for {object_name}")
+        print(f"OCI not available, simulating deletion for {object_name}")
         return True, "Simulated deletion successful"
     
     try:
@@ -219,17 +219,17 @@ def delete_from_oci(object_name: str):
             bucket_name=OCI_BUCKET_NAME,
             object_name=object_name
         )
-        print(f"✅ File deleted successfully from OCI: {object_name}")
+        print(f"File deleted successfully from OCI: {object_name}")
         return True, "File deleted successfully"
     except Exception as e:
-        print(f"❌ Failed to delete from OCI: {object_name} - Error: {e}")
+        print(f"Failed to delete from OCI: {object_name} - Error: {e}")
         return False, str(e)
 
 def delete_file_metadata(user_id: str, file_id: str):
     """Delete file metadata from Supabase"""
     if not supabase:
         # Fallback: simulate successful deletion for development
-        print(f"⚠️  Supabase not available, simulating metadata deletion for {file_id}")
+        print(f"Supabase not available, simulating metadata deletion for {file_id}")
         return True, {"oci_object_name": f"simulated/{file_id}"}
     
     try:
@@ -238,29 +238,27 @@ def delete_file_metadata(user_id: str, file_id: str):
         response = supabase.table("file_metadata").select("*").eq("id", file_id).eq("user_id", user_id).execute()
         
         if not response.data:
-            print(f"❌ File not found: {file_id}")
+            print(f"File not found: {file_id}")
             return False, "File not found"
         
         file_metadata = response.data[0]
-        print(f"📋 Found file metadata: {file_metadata['filename']} -> {file_metadata['oci_object_name']}")
+        print(f"Found file metadata: {file_metadata['filename']} -> {file_metadata['oci_object_name']}")
         
         # Delete the record from database
-        print(f"🗑️  Deleting metadata from database for file {file_id}")
+        print(f"Deleting metadata from database for file {file_id}")
         delete_response = supabase.table("file_metadata").delete().eq("id", file_id).eq("user_id", user_id).execute()
         
-        # Supabase delete operations sometimes don't return data, so we check differently
-        # Let's verify the deletion by trying to find the record again
         verify_response = supabase.table("file_metadata").select("id").eq("id", file_id).eq("user_id", user_id).execute()
         
         if not verify_response.data:
-            print(f"✅ Metadata deleted successfully for file {file_id}")
+            print(f"Metadata deleted successfully for file {file_id}")
             return True, file_metadata
         else:
-            print(f"❌ Metadata deletion failed - record still exists for {file_id}")
+            print(f"Metadata deletion failed - record still exists for {file_id}")
             return False, "Failed to delete metadata"
             
     except Exception as e:
-        print(f"❌ Database error deleting metadata for {file_id}: {e}")
+        print(f"Database error deleting metadata for {file_id}: {e}")
         return False, str(e)
 
 @app.route('/api/health', methods=['GET'])
@@ -304,7 +302,6 @@ def debug_info():
     # Test Supabase connection
     if supabase:
         try:
-            # Try to query the file_metadata table to check if it exists
             response = supabase.table("file_metadata").select("id").limit(1).execute()
             debug_data["supabase_table_test"] = "success"
         except Exception as e:
@@ -318,7 +315,6 @@ def debug_info():
 def list_files():
     """List user files"""
     try:
-        # Get user authentication from headers
         email = request.headers.get('X-User-Email')
         password = request.headers.get('X-User-Password')
         
@@ -549,8 +545,7 @@ def delete_file(file_id):
         # Delete from OCI Object Storage
         oci_success, oci_result = delete_from_oci(oci_object_name)
         if not oci_success:
-            print(f"⚠️  Warning: File metadata deleted but OCI deletion failed: {oci_result}")
-            # Continue anyway, since metadata is already deleted
+            print(f"Warning: File metadata deleted but OCI deletion failed: {oci_result}")
         
         return jsonify({
             "success": True,
@@ -596,19 +591,19 @@ def main():
     
     args = parser.parse_args()
     
-    print("🚀 Starting SecureCloudFS Backend API")
+    print("Starting SecureCloudFS Backend API")
     print(f"   Host: {args.host}")
     print(f"   Port: {args.port}")
     print(f"   OCI Available: {OCI_AVAILABLE}")
     print(f"   Supabase Available: {SUPABASE_AVAILABLE}")
-    print(f"   OCI Client: {'✅' if object_storage_client else '❌'}")
-    print(f"   Supabase Client: {'✅' if supabase else '❌'}")
+    print(f"   OCI Client: {'Available' if object_storage_client else 'Not Available'}")
+    print(f"   Supabase Client: {'Available' if supabase else 'Not Available'}")
     print("=" * 40)
     
     try:
         app.run(host=args.host, port=args.port, debug=False)
     except Exception as e:
-        print(f"❌ Failed to start server: {e}")
+        print(f"Failed to start server: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
