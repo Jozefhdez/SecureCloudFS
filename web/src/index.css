@@ -129,7 +129,6 @@ h6 { font-size: 1rem; }
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  color: transparent;
 }
 
 .form-group {
