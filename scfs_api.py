@@ -213,13 +213,16 @@ def delete_from_oci(object_name: str):
         return True, "Simulated deletion successful"
     
     try:
+        print(f"🗑️  Deleting from OCI: {object_name}")
         object_storage_client.delete_object(
             namespace_name=OCI_NAMESPACE,
             bucket_name=OCI_BUCKET_NAME,
             object_name=object_name
         )
+        print(f"✅ File deleted successfully from OCI: {object_name}")
         return True, "File deleted successfully"
     except Exception as e:
+        print(f"❌ Failed to delete from OCI: {object_name} - Error: {e}")
         return False, str(e)
 
 def delete_file_metadata(user_id: str, file_id: str):
@@ -231,21 +234,29 @@ def delete_file_metadata(user_id: str, file_id: str):
     
     try:
         # First get the file metadata to retrieve OCI object name
+        print(f"🔍 Getting metadata for file {file_id} (user: {user_id})")
         response = supabase.table("file_metadata").select("*").eq("id", file_id).eq("user_id", user_id).execute()
         
         if not response.data:
+            print(f"❌ File not found: {file_id}")
             return False, "File not found"
         
         file_metadata = response.data[0]
+        print(f"📋 Found file metadata: {file_metadata['filename']} -> {file_metadata['oci_object_name']}")
         
         # Delete the record from database
+        print(f"🗑️  Deleting metadata from database for file {file_id}")
         delete_response = supabase.table("file_metadata").delete().eq("id", file_id).eq("user_id", user_id).execute()
         
-        if delete_response.data:
+        # Supabase delete operations sometimes don't return data, so we check differently
+        # Let's verify the deletion by trying to find the record again
+        verify_response = supabase.table("file_metadata").select("id").eq("id", file_id).eq("user_id", user_id).execute()
+        
+        if not verify_response.data:
             print(f"✅ Metadata deleted successfully for file {file_id}")
             return True, file_metadata
         else:
-            print(f"❌ No data returned when deleting metadata for {file_id}")
+            print(f"❌ Metadata deletion failed - record still exists for {file_id}")
             return False, "Failed to delete metadata"
             
     except Exception as e:
