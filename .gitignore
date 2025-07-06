@@ -116,3 +116,30 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Database and SQL files (keep schema as reference)
+*.db
+*.sqlite
+*.sqlite3
+backup.sql
+dump.sql
+
+# Additional testing and development files
+debug_*
+*.debug
+test_upload_*
+sample_*
+example_upload.*
+
+# Local testing files (don't push to GitHub)
+.env
+.env.local
+*.pem
+test_backend.py
+test_file.*
+sample_*
+debug_*
+
+# Remove these files from production
+oci_key.pem
+local_test*

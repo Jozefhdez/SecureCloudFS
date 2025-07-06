@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-"""
-SecureCloudFS Backend API
-========================
-Backend service for SecureCloudFS - runs on Railway
-
-This is the backend API that the SecureCloudFS client connects to.
-Users don't interact with this directly - they use securecloud.py
-"""
-
 import os
 import sys
 import json
@@ -102,15 +92,26 @@ def authenticate_user(email: str, password: str):
     if not supabase:
         # Fallback: simulate successful auth for development
         print(f"⚠️  Supabase not available, simulating auth for {email}")
-        return True, type('MockAuth', (), {'user': type('MockUser', (), {'id': email})()})()
+        return True, type('MockAuth', (), {
+            'user': type('MockUser', (), {
+                'id': email,  # Using email as fallback for development
+                'email': email
+            })()
+        })()
     
     try:
         response = supabase.auth.sign_in_with_password({
             "email": email,
             "password": password
         })
-        return True, response
+        if hasattr(response, 'user') and response.user:
+            print(f"✅ User authenticated successfully: {response.user.id}")
+            return True, response
+        else:
+            print(f"❌ Authentication failed: No user returned")
+            return False, "Authentication failed"
     except Exception as e:
+        print(f"❌ Authentication error: {e}")
         return False, str(e)
 
 def get_user_files(user_id: str):
@@ -121,7 +122,7 @@ def get_user_files(user_id: str):
         return []
     
     try:
-        response = supabase.table("files").select("*").eq("user_id", user_id).execute()
+        response = supabase.table("file_metadata").select("*").eq("user_id", user_id).execute()
         return response.data
     except Exception as e:
         print(f"Error getting user files: {e}")
@@ -137,26 +138,38 @@ def store_file_metadata(user_id: str, filename: str, file_size: int, file_hash: 
             "user_id": user_id,
             "filename": filename,
             "size": file_size,
-            "hash": file_hash,
+            "hash_sha256": file_hash,
             "oci_object_name": oci_object_name,
             "uploaded_at": datetime.utcnow().isoformat()
         }
     
     try:
         file_data = {
-            "id": str(uuid.uuid4()),
             "user_id": user_id,
             "filename": filename,
+            "original_path": filename,  # Using filename as original_path for now
+            "encrypted_path": oci_object_name,  # OCI path as encrypted path
             "size": file_size,
-            "hash": file_hash,
+            "hash_sha256": file_hash,
             "oci_object_name": oci_object_name,
             "uploaded_at": datetime.utcnow().isoformat(),
             "created_at": datetime.utcnow().isoformat()
         }
         
-        response = supabase.table("files").insert(file_data).execute()
-        return True, response.data[0] if response.data else file_data
+        print(f"🔍 Storing metadata for {filename} (user: {user_id})")
+        response = supabase.table("file_metadata").insert(file_data).execute()
+        
+        if response.data:
+            print(f"✅ Metadata stored successfully for {filename}")
+            return True, response.data[0]
+        else:
+            print(f"❌ No data returned when storing metadata for {filename}")
+            return False, "No data returned from database"
+            
     except Exception as e:
+        print(f"❌ Database error storing metadata for {filename}: {e}")
+        print(f"   Error type: {type(e).__name__}")
+        print(f"   Error details: {str(e)}")
         return False, str(e)
 
 def upload_to_oci(file_data: bytes, object_name: str):
@@ -208,7 +221,7 @@ def health_check():
 @app.route('/api/debug', methods=['GET'])
 def debug_info():
     """Debug endpoint to check configuration"""
-    return jsonify({
+    debug_data = {
         "service": "SecureCloudFS API Debug",
         "environment": {
             "OCI_USER_OCID": "configured" if os.getenv("OCI_USER_OCID") else "missing",
@@ -217,7 +230,8 @@ def debug_info():
             "OCI_REGION": os.getenv("OCI_REGION", "not set"),
             "OCI_NAMESPACE": os.getenv("OCI_NAMESPACE", "not set"),
             "OCI_BUCKET_NAME": os.getenv("OCI_BUCKET_NAME", "not set"),
-            "OCI_KEY_CONTENT": "configured" if os.getenv("OCI_KEY_CONTENT") else "missing",
+            "OCI_KEY_CONTENT": "configured" if get_oci_key_content() else "missing",
+            "OCI_KEY_FILE": os.getenv("OCI_KEY_FILE", "not set"),
             "SUPABASE_URL": "configured" if os.getenv("SUPABASE_URL") else "missing",
             "SUPABASE_API_KEY": "configured" if os.getenv("SUPABASE_API_KEY") else "missing"
         },
@@ -227,7 +241,20 @@ def debug_info():
             "oci_client": object_storage_client is not None,
             "supabase_client": supabase is not None
         }
-    })
+    }
+    
+    # Test Supabase connection
+    if supabase:
+        try:
+            # Try to query the file_metadata table to check if it exists
+            response = supabase.table("file_metadata").select("id").limit(1).execute()
+            debug_data["supabase_table_test"] = "success"
+        except Exception as e:
+            debug_data["supabase_table_test"] = f"failed: {str(e)}"
+    else:
+        debug_data["supabase_table_test"] = "client not available"
+    
+    return jsonify(debug_data)
 
 @app.route('/api/files', methods=['GET'])
 def list_files():
@@ -381,7 +408,7 @@ def download_file(file_id):
             }), 500
         
         try:
-            response = supabase.table("files").select("*").eq("id", file_id).eq("user_id", user_id).execute()
+            response = supabase.table("file_metadata").select("*").eq("id", file_id).eq("user_id", user_id).execute()
             if not response.data:
                 return jsonify({
                     "success": False,
