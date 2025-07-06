@@ -393,6 +393,21 @@ def upload_file():
         file_size = len(file_data)
         file_hash = hashlib.sha256(file_data).hexdigest()
         
+        # Check if file already exists (by hash and user)
+        try:
+            existing_file = supabase.table("file_metadata").select("*").eq("user_id", user_id).eq("hash_sha256", file_hash).execute()
+            if existing_file.data:
+                return jsonify({
+                    "success": True,
+                    "message": "File already exists (duplicate detected)",
+                    "file_id": existing_file.data[0]["id"],
+                    "filename": existing_file.data[0]["filename"],
+                    "size": existing_file.data[0]["size"],
+                    "duplicate": True
+                })
+        except Exception as e:
+            print(f"Warning: Could not check for duplicates: {e}")
+        
         # Generate unique object name for OCI
         oci_object_name = f"{user_id}/{file_hash}_{file.filename}"
         

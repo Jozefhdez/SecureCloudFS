@@ -45,12 +45,12 @@ def check_dependencies():
             missing_packages.append(pip_name)
     
     if missing_packages:
-        print("🔧 Installing required dependencies...")
+        print("Installing required dependencies...")
         import subprocess
         for package in missing_packages:
             print(f"   Installing {package}...")
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
-        print("✅ Dependencies installed successfully!\n")
+        print("Dependencies installed successfully!\n")
 
 # Check dependencies first
 check_dependencies()
@@ -135,7 +135,7 @@ class SecureCloudClient:
         if response.status_code == 200:
             return response.json().get('files', [])
         else:
-            print(f"❌ Error listing files: {response.text}")
+            print(f"Error listing files: {response.text}")
             return []
     
     def upload_file(self, file_path: str):
@@ -144,10 +144,10 @@ class SecureCloudClient:
             return False
         
         if not os.path.exists(file_path):
-            print(f"❌ File not found: {file_path}")
+            print(f"File not found: {file_path}")
             return False
         
-        print(f"🔒 Encrypting {os.path.basename(file_path)}...")
+        print(f"Encrypting {os.path.basename(file_path)}...")
         
         # Read and encrypt file
         with open(file_path, 'rb') as f:
@@ -156,7 +156,7 @@ class SecureCloudClient:
         encrypted_data = self.fernet.encrypt(file_data)
         file_hash = hashlib.sha256(file_data).hexdigest()
         
-        print(f"☁️  Uploading {os.path.basename(file_path)}...")
+        print(f"Uploading {os.path.basename(file_path)}...")
         
         # Prepare multipart upload
         files = {
@@ -179,17 +179,20 @@ class SecureCloudClient:
             if response.status_code == 200:
                 result = response.json()
                 if result.get("success"):
-                    print("✅ File uploaded and encrypted successfully!")
+                    if result.get("duplicate"):
+                        print("File already exists (skipping duplicate)")
+                    else:
+                        print("File uploaded and encrypted successfully!")
                     return True
                 else:
-                    print(f"❌ Upload failed: {result.get('error', 'Unknown error')}")
+                    print(f"Upload failed: {result.get('error', 'Unknown error')}")
                     return False
             else:
-                print(f"❌ Upload failed with status {response.status_code}: {response.text}")
+                print(f"Upload failed with status {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Upload error: {e}")
+            print(f"Upload error: {e}")
             return False
     
     def download_file(self, filename: str, output_path: str):
@@ -206,15 +209,15 @@ class SecureCloudClient:
                 break
         
         if not target_file:
-            print(f"❌ File '{filename}' not found")
+            print(f"File '{filename}' not found")
             return False
         
-        print(f"📥 Downloading {filename}...")
+        print(f"Downloading {filename}...")
         
         response = self._api_request('GET', f"/files/download/{target_file['id']}")
         
         if response.status_code == 200:
-            print(f"🔓 Decrypting {filename}...")
+            print(f"Decrypting {filename}...")
             
             try:
                 # Decrypt the file data
@@ -225,38 +228,53 @@ class SecureCloudClient:
                 with open(output_path, 'wb') as f:
                     f.write(decrypted_data)
                 
-                print(f"✅ Downloaded to: {output_path}")
+                print(f"Downloaded to: {output_path}")
                 return True
                 
             except Exception as e:
-                print(f"❌ Decryption failed: {e}")
+                print(f"Decryption failed: {e}")
                 return False
         else:
-            print(f"❌ Download failed: {response.text}")
+            print(f"Download failed: {response.text}")
             return False
 
 class FolderSyncHandler(FileSystemEventHandler):
     def __init__(self, client: SecureCloudClient):
         self.client = client
+        self.upload_debounce = {}  # Track recent uploads to avoid duplicates
+    
+    def _should_upload(self, file_path):
+        """Check if file should be uploaded (debounce mechanism)"""
+        import time
+        current_time = time.time()
+        
+        # Skip if file was uploaded in the last 5 seconds
+        if file_path in self.upload_debounce:
+            if current_time - self.upload_debounce[file_path] < 5:
+                return False
+        
+        # Record upload time
+        self.upload_debounce[file_path] = current_time
+        return True
     
     def on_created(self, event):
-        if not event.is_directory:
-            print(f"📁 New file detected: {event.src_path}")
+        if not event.is_directory and self._should_upload(event.src_path):
+            print(f"New file detected: {event.src_path}")
             self.client.upload_file(event.src_path)
     
     def on_modified(self, event):
-        if not event.is_directory:
-            print(f"📝 File modified: {event.src_path}")
+        if not event.is_directory and self._should_upload(event.src_path):
+            print(f"File modified: {event.src_path}")
             self.client.upload_file(event.src_path)
 
 def sync_folder(client: SecureCloudClient, folder_path: str):
     """Sync folder continuously"""
     if not os.path.exists(folder_path):
-        print(f"❌ Folder not found: {folder_path}")
+        print(f"Folder not found: {folder_path}")
         return
     
-    print(f"👀 Watching folder: {folder_path}")
-    print("🔄 Starting initial sync of existing files...")
+    print(f"Watching folder: {folder_path}")
+    print("Starting initial sync of existing files...")
     print("-" * 50)
     
     # Initial sync: upload all existing files
@@ -267,32 +285,37 @@ def sync_folder(client: SecureCloudClient, folder_path: str):
                 file_path = os.path.join(root, file)
                 # Skip hidden files and system files
                 if not os.path.basename(file).startswith('.'):
-                    print(f"📄 Found existing file: {os.path.relpath(file_path, folder_path)}")
+                    print(f"Found existing file: {os.path.relpath(file_path, folder_path)}")
                     client.upload_file(file_path)
     
-    # Perform initial sync
+    # Perform initial sync BEFORE starting the observer
     sync_existing_files(folder_path)
     
     print("-" * 50)
-    print("✅ Initial sync completed!")
-    print("🔄 Now monitoring for changes. Press Ctrl+C to stop.")
+    print("Initial sync completed!")
+    print("Now monitoring for changes. Press Ctrl+C to stop.")
     print("-" * 50)
     
+    # Create and start observer AFTER initial sync is complete
     event_handler = FolderSyncHandler(client)
     observer = Observer()
     observer.schedule(event_handler, folder_path, recursive=True)
+    
+    # Add a small delay to ensure initial sync is truly complete
+    time.sleep(2)
+    
     observer.start()
     
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n🛑 Stopping sync...")
+        print("\n Stopping sync...")
         observer.stop()
     observer.join()
 
 def main():
-    print("🔐 SecureCloudFS Client")
+    print("SecureCloudFS Client")
     print("======================")
     print("Secure encrypted file storage")
     print("Web App: https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/")
@@ -337,12 +360,12 @@ def main():
             print(f"📁 Your files ({len(files)} total):")
             print("-" * 40)
             for file_data in files:
-                print(f"📄 {file_data['filename']}")
-                print(f"   Size: {file_data['size']} bytes")
-                print(f"   Uploaded: {file_data['uploaded_at']}")
+                print(f"{file_data['filename']}")
+                print(f"Size: {file_data['size']} bytes")
+                print(f"Uploaded: {file_data['uploaded_at']}")
                 print()
         else:
-            print("📁 No files found. Upload some files first!")
+            print("No files found. Upload some files first!")
     
     elif args.command == 'upload':
         client.upload_file(args.file)
