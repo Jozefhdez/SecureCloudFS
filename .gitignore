@@ -10,6 +10,19 @@
 !web/.env.example
 !web/.env.production.example
 
+# OCI credentials and keys
+*.pem
+oci_config
+oci_key.pem
+private_key.pem
+
+# Testing files and environments
+test_env/
+testing/
+*.test.py
+test_file.txt
+local_test_*
+
 # Python
 __pycache__/
 *.py[cod]
