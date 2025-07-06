@@ -35,8 +35,8 @@ curl -O https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/secureclo
 # 2. Install dependencies (first time only)
 pip install requests cryptography watchdog python-dotenv oci supabase
 
-# 3. List your files
-python3 securecloud.py list --email your@email.com --password yourpass
+# 3. Create an account
+[SecureCloudFS](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/)
 
 # 4. Upload and sync a folder
 python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
@@ -50,28 +50,6 @@ python3 securecloud.py sync --email your@email.com --password yourpass --folder 
 - **🔄 Auto Sync**: Desktop client syncs folders automatically (optional)
 - **🆓 Free to Use**: No credit card required
 - **🛡️ Zero Knowledge**: We cannot see your files, even if we wanted to
-
-## 🔧 Command Line Examples
-
-### List your files
-```bash
-python3 securecloud.py list --email your@email.com --password yourpass
-```
-
-### Upload a file
-```bash
-python3 securecloud.py upload --email your@email.com --password yourpass --file document.pdf
-```
-
-### Download a file
-```bash
-python3 securecloud.py download --email your@email.com --password yourpass --file document.pdf --output ./document.pdf
-```
-
-### Auto-sync a folder
-```bash
-python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
-```
 
 ## 🔒 How Secure Is It?
 
@@ -93,7 +71,7 @@ python3 securecloud.py sync --email your@email.com --password yourpass --folder 
 A: Only for viewing and downloading files. You need the desktop client to upload files securely.
 
 **Q: Why can't I upload through the web?**
-A: Files must be encrypted on YOUR computer before upload for true security. Web browsers can't do this safely.
+A: Files must be encrypted on YOUR computer before upload for true security. 
 
 **Q: Do I need to install anything?**
 A: Just Python and one small script. No complex setup required.
@@ -106,13 +84,6 @@ A: Your files become unrecoverable. We cannot reset passwords.
 
 **Q: Is it really free?**
 A: Yes, the service is free to use.
-
-## 🆘 Need Help?
-
-1. For file uploads/syncing issues: Download and run the desktop client
-2. For viewing/downloading issues: Try the [Web App](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/)
-3. Check your email/password if login fails
-4. Open an issue on GitHub for technical problems
 
 ---
 
