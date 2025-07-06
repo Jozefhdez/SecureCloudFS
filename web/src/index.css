@@ -570,7 +570,7 @@ h6 { font-size: 1rem; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-6);
+  padding: var(--space-16) var(--space-6) var(--space-6);
   text-align: center;
   position: relative;
 }
@@ -1114,7 +1114,7 @@ h6 { font-size: 1rem; }
   }
   
   .hero-section {
-    padding: var(--space-4);
+    padding: var(--space-8) var(--space-4) var(--space-4);
   }
   
   .hero-title {
