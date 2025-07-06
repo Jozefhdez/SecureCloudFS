@@ -52,7 +52,7 @@ export default function LoginPage() {
           
           navigate("/dashboard");
         } else {
-          setError("No se pudo iniciar sesión: sesión inválida.");
+          setError("Could not sign in: invalid session.");
         }
 
       } else {
@@ -70,13 +70,13 @@ export default function LoginPage() {
           return;
         }
 
-        // En la mayoría de los casos, Supabase envía un correo de confirmación
-        setInfo("Registro exitoso. Revisa tu correo para confirmar tu cuenta.");
+        // In most cases, Supabase sends a confirmation email
+        setInfo("Registration successful. Check your email to confirm your account.");
       }
 
     } catch (err) {
       console.error("Unhandled error:", err);
-      setError("Ocurrió un error inesperado.");
+      setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
