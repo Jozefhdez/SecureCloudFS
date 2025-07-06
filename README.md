@@ -16,7 +16,7 @@ SecureCloudFS encrypts your files with AES-256 *before* they leave your computer
 
 Access your files from any browser:
 
-**👉 [Open SecureCloudFS Web App](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/)**
+**👉 [Open SecureCloudFS Web App](secure-cloud-fs.vercel.app)**
 
 - ✅ View all your encrypted files
 - ✅ Download files to your device
@@ -36,7 +36,7 @@ curl -O https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/secureclo
 pip install requests cryptography watchdog python-dotenv oci supabase
 
 # 3. Create an account
-[SecureCloudFS](https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/)
+[SecureCloudFS](secure-cloud-fs.vercel.app)
 
 # 4. Upload and sync a folder
 python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
