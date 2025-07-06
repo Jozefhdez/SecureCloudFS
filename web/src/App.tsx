@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/services/supabaseClient";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
+import LandingPage from "@/pages/Landing";
 import LoginPage from "@/pages/Login";
 import DashboardPage from "@/pages/Dashboard";
 
@@ -25,11 +26,15 @@ function App() {
       <Routes>
         <Route
           path="/"
+          element={<LandingPage />}
+        />
+        <Route
+          path="/login"
           element={session ? <Navigate to="/dashboard" /> : <LoginPage />}
         />
         <Route
           path="/dashboard"
-          element={session ? <DashboardPage /> : <Navigate to="/" />}
+          element={session ? <DashboardPage /> : <Navigate to="/login" />}
         />
       </Routes>
     </Router>
