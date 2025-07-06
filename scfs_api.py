@@ -47,12 +47,28 @@ except ImportError as e:
     print(f"⚠️  Supabase library not available: {e}")
 
 # Configuration from environment
+def get_oci_key_content():
+    """Get OCI private key content from env variable or file"""
+    key_content = os.getenv("OCI_KEY_CONTENT", "")
+    if key_content:
+        return key_content
+    
+    key_file = os.getenv("OCI_KEY_FILE", "")
+    if key_file:
+        try:
+            key_path = os.path.join(os.path.dirname(__file__), key_file)
+            with open(key_path, 'r') as f:
+                return f.read()
+        except Exception as e:
+            print(f"❌ Failed to read OCI key file {key_file}: {e}")
+    return ""
+
 OCI_CONFIG = {
     "user": os.getenv("OCI_USER_OCID", ""),
     "fingerprint": os.getenv("OCI_FINGERPRINT", ""),
     "tenancy": os.getenv("OCI_TENANCY_OCID", ""),
     "region": os.getenv("OCI_REGION", "mx-queretaro-1"),
-    "key_content": os.getenv("OCI_KEY_CONTENT", "")
+    "key_content": get_oci_key_content()
 }
 
 OCI_NAMESPACE = os.getenv("OCI_NAMESPACE", "")
