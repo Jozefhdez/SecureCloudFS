@@ -205,6 +205,53 @@ def download_from_oci(object_name: str):
     except Exception as e:
         return False, str(e)
 
+def delete_from_oci(object_name: str):
+    """Delete file from OCI Object Storage"""
+    if not object_storage_client:
+        # Fallback: simulate successful deletion for development
+        print(f"⚠️  OCI not available, simulating deletion for {object_name}")
+        return True, "Simulated deletion successful"
+    
+    try:
+        object_storage_client.delete_object(
+            namespace_name=OCI_NAMESPACE,
+            bucket_name=OCI_BUCKET_NAME,
+            object_name=object_name
+        )
+        return True, "File deleted successfully"
+    except Exception as e:
+        return False, str(e)
+
+def delete_file_metadata(user_id: str, file_id: str):
+    """Delete file metadata from Supabase"""
+    if not supabase:
+        # Fallback: simulate successful deletion for development
+        print(f"⚠️  Supabase not available, simulating metadata deletion for {file_id}")
+        return True, {"oci_object_name": f"simulated/{file_id}"}
+    
+    try:
+        # First get the file metadata to retrieve OCI object name
+        response = supabase.table("file_metadata").select("*").eq("id", file_id).eq("user_id", user_id).execute()
+        
+        if not response.data:
+            return False, "File not found"
+        
+        file_metadata = response.data[0]
+        
+        # Delete the record from database
+        delete_response = supabase.table("file_metadata").delete().eq("id", file_id).eq("user_id", user_id).execute()
+        
+        if delete_response.data:
+            print(f"✅ Metadata deleted successfully for file {file_id}")
+            return True, file_metadata
+        else:
+            print(f"❌ No data returned when deleting metadata for {file_id}")
+            return False, "Failed to delete metadata"
+            
+    except Exception as e:
+        print(f"❌ Database error deleting metadata for {file_id}: {e}")
+        return False, str(e)
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint for Railway"""
@@ -447,6 +494,66 @@ def download_file(file_id):
             "error": f"Download failed: {str(e)}"
         }), 500
 
+@app.route('/api/files/<file_id>', methods=['DELETE'])
+def delete_file(file_id):
+    """Delete a file"""
+    try:
+        # Get user authentication
+        email = request.headers.get('X-User-Email')
+        password = request.headers.get('X-User-Password')
+        
+        if not email or not password:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+        
+        # Authenticate user
+        auth_success, auth_result = authenticate_user(email, password)
+        if not auth_success:
+            return jsonify({
+                "success": False,
+                "error": f"Authentication failed: {auth_result}"
+            }), 401
+        
+        # Get user ID
+        user_id = auth_result.user.id if hasattr(auth_result, 'user') else email
+        
+        # Delete metadata from Supabase and get OCI object name
+        metadata_success, metadata_result = delete_file_metadata(user_id, file_id)
+        if not metadata_success:
+            return jsonify({
+                "success": False,
+                "error": f"File not found or metadata deletion failed: {metadata_result}"
+            }), 404 if "not found" in str(metadata_result).lower() else 500
+        
+        # Get OCI object name from metadata
+        oci_object_name = metadata_result.get("oci_object_name")
+        if not oci_object_name:
+            return jsonify({
+                "success": False,
+                "error": "No OCI object name found in metadata"
+            }), 500
+        
+        # Delete from OCI Object Storage
+        oci_success, oci_result = delete_from_oci(oci_object_name)
+        if not oci_success:
+            print(f"⚠️  Warning: File metadata deleted but OCI deletion failed: {oci_result}")
+            # Continue anyway, since metadata is already deleted
+        
+        return jsonify({
+            "success": True,
+            "message": "File deleted successfully",
+            "file_id": file_id,
+            "oci_deletion": "success" if oci_success else f"failed: {oci_result}"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Delete failed: {str(e)}"
+        }), 500
+
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint"""
@@ -460,7 +567,8 @@ def root():
             "debug": "/api/debug",
             "files": "/api/files",
             "upload": "/api/files/upload",
-            "download": "/api/files/download/<file_id>"
+            "download": "/api/files/download/<file_id>",
+            "delete": "/api/files/<file_id>"
         }
     })
 
