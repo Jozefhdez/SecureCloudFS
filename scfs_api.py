@@ -374,19 +374,19 @@ def upload_file():
         # Get user ID
         user_id = auth_result.user.id if hasattr(auth_result, 'user') else email
         
-        # Check file limit (50 files per user)
+        # Check file limit (10 files per user)
         if supabase:
             try:
                 file_count_response = supabase.table("file_metadata").select("id", count="exact").eq("user_id", user_id).execute()
                 current_file_count = file_count_response.count if hasattr(file_count_response, 'count') else len(file_count_response.data)
                 
-                if current_file_count >= 50:
+                if current_file_count >= 10:
                     return jsonify({
                         "success": False,
-                        "error": f"File limit exceeded. You have {current_file_count}/50 files. Please delete some files before uploading new ones."
+                        "error": f"File limit exceeded. You have {current_file_count}/10 files. Please delete some files before uploading new ones."
                     }), 400
                     
-                print(f"User {user_id} has {current_file_count}/50 files")
+                print(f"User {user_id} has {current_file_count}/10 files")
             except Exception as e:
                 print(f"Warning: Could not check file count: {e}")
         
@@ -407,6 +407,15 @@ def upload_file():
         # Read file data
         file_data = file.read()
         file_size = len(file_data)
+        
+        # Check file size limit (5 MB maximum)
+        MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB in bytes
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({
+                "success": False,
+                "error": f"File too large. Maximum size is 5 MB, but your file is {file_size / (1024 * 1024):.2f} MB."
+            }), 400
+        
         file_hash = hashlib.sha256(file_data).hexdigest()
         
         # Check if file already exists (by hash and user)
