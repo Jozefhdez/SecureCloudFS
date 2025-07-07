@@ -160,6 +160,27 @@ h6 { font-size: 1rem; }
   box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
 }
 
+.form-input.error {
+  border-color: var(--danger);
+  background-color: #fef2f2;
+}
+
+.form-input.error:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.1);
+}
+
+.field-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--danger);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  margin-top: var(--space-1);
+  font-weight: 500;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

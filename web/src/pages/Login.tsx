@@ -2,6 +2,44 @@ import { useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useNavigate } from "react-router-dom";
 
+// Security validation patterns
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`\s]{6,128}$/;
+const SQL_INJECTION_PATTERNS = [
+  /('|(\\)|;|--|\/\*|\*\/)/i,
+  /(union|select|insert|update|delete|drop|create|alter|exec|execute)/i,
+  /(script|javascript|vbscript|onload|onerror|onclick)/i,
+  /(<|>|&lt;|&gt;)/i
+];
+
+const validateInput = (input: string, type: 'email' | 'password'): { isValid: boolean; error?: string } => {
+  // Check for SQL injection patterns
+  for (const pattern of SQL_INJECTION_PATTERNS) {
+    if (pattern.test(input)) {
+      return { isValid: false, error: 'Invalid characters detected. Please use only allowed characters.' };
+    }
+  }
+  
+  // Type-specific validation
+  if (type === 'email') {
+    if (!EMAIL_REGEX.test(input)) {
+      return { isValid: false, error: 'Please enter a valid email address.' };
+    }
+  } else if (type === 'password') {
+    if (input.length < 6) {
+      return { isValid: false, error: 'Password must be at least 6 characters long.' };
+    }
+    if (input.length > 128) {
+      return { isValid: false, error: 'Password must be less than 128 characters long.' };
+    }
+    if (!PASSWORD_REGEX.test(input)) {
+      return { isValid: false, error: 'Password contains invalid characters.' };
+    }
+  }
+  
+  return { isValid: true };
+};
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -9,7 +47,33 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    setError(null);
+    
+    if (value.length > 0) {
+      const validation = validateInput(value, 'email');
+      setEmailError(validation.isValid ? null : validation.error || 'Invalid email');
+    } else {
+      setEmailError(null);
+    }
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    setError(null);
+    
+    if (value.length > 0) {
+      const validation = validateInput(value, 'password');
+      setPasswordError(validation.isValid ? null : validation.error || 'Invalid password');
+    } else {
+      setPasswordError(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +82,22 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Validate email
+      const emailValidation = validateInput(email, 'email');
+      if (!emailValidation.isValid) {
+        setError(emailValidation.error || 'Invalid email format');
+        setLoading(false);
+        return;
+      }
+
+      // Validate password
+      const passwordValidation = validateInput(password, 'password');
+      if (!passwordValidation.isValid) {
+        setError(passwordValidation.error || 'Invalid password format');
+        setLoading(false);
+        return;
+      }
+
       if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -122,11 +202,16 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="Enter your email"
-              className="form-input"
+              className={`form-input ${emailError ? 'error' : ''}`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleEmailChange(e.target.value)}
               required
             />
+            {emailError && (
+              <div className="field-error">
+                {emailError}
+              </div>
+            )}
           </div>
 
           <div className="form-group">
@@ -137,17 +222,22 @@ export default function LoginPage() {
               id="password"
               type="password"
               placeholder="Enter your password"
-              className="form-input"
+              className={`form-input ${passwordError ? 'error' : ''}`}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => handlePasswordChange(e.target.value)}
               required
             />
+            {passwordError && (
+              <div className="field-error">
+                {passwordError}
+              </div>
+            )}
           </div>
 
           <button
             type="submit"
             className="btn btn-primary btn-full"
-            disabled={loading}
+            disabled={loading || emailError !== null || passwordError !== null || !email || !password}
           >
             {loading ? (
               <div className="spinner"></div>
