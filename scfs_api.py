@@ -374,6 +374,22 @@ def upload_file():
         # Get user ID
         user_id = auth_result.user.id if hasattr(auth_result, 'user') else email
         
+        # Check file limit (50 files per user)
+        if supabase:
+            try:
+                file_count_response = supabase.table("file_metadata").select("id", count="exact").eq("user_id", user_id).execute()
+                current_file_count = file_count_response.count if hasattr(file_count_response, 'count') else len(file_count_response.data)
+                
+                if current_file_count >= 50:
+                    return jsonify({
+                        "success": False,
+                        "error": f"File limit exceeded. You have {current_file_count}/50 files. Please delete some files before uploading new ones."
+                    }), 400
+                    
+                print(f"User {user_id} has {current_file_count}/50 files")
+            except Exception as e:
+                print(f"Warning: Could not check file count: {e}")
+        
         # Get file data from request
         if 'file' not in request.files:
             return jsonify({
