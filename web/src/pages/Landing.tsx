@@ -9,7 +9,10 @@ export default function LandingPage() {
       <section className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">
-            <img src="/logo.png" alt="SecureCloudFS" className="hero-logo" />
+            <svg className="hero-logo" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z"/>
+              <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6"/>
+            </svg>
             SecureCloudFS
           </h1>
           <p className="hero-subtitle">
@@ -38,7 +41,7 @@ export default function LandingPage() {
           </div>
 
           <div className="hero-note">
-            <p>⚠️ <strong>Important:</strong> To upload files, you need the desktop client. The web app is for viewing and downloading only.</p>
+            <p><strong>Important:</strong> To upload files, you need the desktop client. The web app is for viewing and downloading only.</p>
           </div>
 
           {/* Quick Start Commands */}
@@ -153,8 +156,9 @@ export default function LandingPage() {
           <div className="explanation-content">
             <div className="explanation-card">
               <div className="explanation-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9.585 11.692h4.328s2.432.039 2.432-2.35V5.391S16.714 3 11.936 3C7.362 3 7.647 4.983 7.647 4.983l.006 2.055h4.363v.617H5.92s-2.927-.332-2.927 4.282 2.555 4.45 2.555 4.45h1.524v-2.141s-.083-2.554 2.513-2.554zm-.056-5.74a.784.784 0 1 1 0-1.567.784.784 0 0 1 0 1.567z"/>
+                  <path d="M14.415 12.308h-4.328s-2.432-.04-2.432 2.35v3.951S7.286 21 12.064 21c4.574 0 4.289-1.983 4.289-1.983l-.006-2.055h-4.363v-.617h6.096s2.927.332 2.927-4.282-2.555-4.45-2.555-4.45h-1.524v2.141s.083 2.554-2.513 2.554zm.056 5.74a.784.784 0 1 1 0 1.567.784.784 0 0 1 0-1.567z"/>
                 </svg>
               </div>
               <div className="explanation-text">
@@ -166,8 +170,9 @@ export default function LandingPage() {
 
             <div className="explanation-card">
               <div className="explanation-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z"/>
+                  <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6"/>
                 </svg>
               </div>
               <div className="explanation-text">
@@ -179,7 +184,7 @@ export default function LandingPage() {
           </div>
 
           <div className="explanation-note">
-            <p>💡 <strong>The Result:</strong> Maximum security with maximum convenience. Your files are always encrypted, but you can access them from anywhere.</p>
+            <p><strong>The Result:</strong> Maximum security with maximum convenience. Your files are always encrypted, but you can access them from anywhere.</p>
           </div>
         </div>
       </section>
@@ -192,7 +197,7 @@ export default function LandingPage() {
         <div className="cta-container">
           <h2>Ready to Secure Your Files?</h2>
           <button 
-            className="btn btn-primary btn-large"
+            className="btn btn-cta btn-large"
             onClick={() => navigate('/login')}
           >
             Get Started Free
