@@ -19,7 +19,7 @@ export default function LandingPage() {
             Your files, encrypted and secure in the cloud
           </p>
           <p className="hero-description">
-            SecureCloudFS encrypts your files with AES-256 <strong>before</strong> they leave your computer. 
+            SecureCloudFS encrypts your files <strong>before</strong> they leave your computer. 
             Even we can't see your data.
           </p>
           
