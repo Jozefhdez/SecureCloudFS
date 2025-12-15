@@ -21,9 +21,8 @@ Access your files from any browser:
 - ✅ View all your encrypted files
 - ✅ Download files to your device
 - ✅ Works on any device with internet
-- ❌ Cannot upload files (use desktop client for uploads)
 
-### 💻 Desktop Client (Required for Uploading & Syncing)
+### Desktop Client
 **You need this to upload files or sync folders.**
 
 Download one file and run:
