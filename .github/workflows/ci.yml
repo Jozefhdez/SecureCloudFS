@@ -1,0 +1,71 @@
+name: CI/CD
+
+# every push to main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # backend job
+  backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest flake8 black
+      
+      - name: Check formatting
+        run: black --check *.py
+        continue-on-error: true
+      
+      - name: Lint
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
+      
+      - name: Test
+        run: echo "pytest" # TODO: rn is just to see if this works
+        continue-on-error: true
+  
+  
+  # frontend job
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./web
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ./web/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Lint
+        run: npm run lint --if-present
+        continue-on-error: true
+      
+      - name: Type check # check ts types :)
+        run: npx tsc --noEmit
+        continue-on-error: true
+      
+      - name: Build
+        run: npm run build
