@@ -8,23 +8,11 @@ interface StatsProps {
 export default function Stats({ files }: StatsProps) {
   const totalFiles = files.length;
   const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-  
-  // Archivos por tipo
-  const fileTypes = files.reduce((acc, file) => {
-    const extension = file.filename.split('.').pop()?.toLowerCase() || 'sin extensión';
-    acc[extension] = (acc[extension] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
 
-  const topFileTypes = Object.entries(fileTypes)
-    .sort(([,a], [,b]) => b - a)
-    .slice(0, 5);
-
-  // Archivos recientes (últimos 7 días)
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  
-  const recentFiles = files.filter(file => 
+
+  const recentFiles = files.filter(file =>
     new Date(file.uploaded_at) > sevenDaysAgo
   ).length;
 
@@ -59,7 +47,10 @@ export default function Stats({ files }: StatsProps) {
             <p>Total space</p>
           </div>
         </div>
-        <div className="stat-value">{FileService.formatFileSize(totalSize)}</div>
+        <div className="stat-value">
+          {totalSize === 0 ? '0 ' : FileService.formatFileSize(totalSize).replace(/([A-Za-z]+)$/, '')}
+          <span className="unit">{totalSize === 0 ? 'Bytes' : FileService.formatFileSize(totalSize).match(/[A-Za-z]+$/)?.[0]}</span>
+        </div>
       </div>
 
       {/* Recent Files */}
@@ -76,42 +67,6 @@ export default function Stats({ files }: StatsProps) {
           </div>
         </div>
         <div className="stat-value">{recentFiles}</div>
-      </div>
-
-      {/* File Types */}
-      <div className="stat-card">
-        <div className="stat-header">
-          <div className="stat-icon purple">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <div className="stat-content">
-            <h3>File Types</h3>
-            <p>Distribution by extension</p>
-          </div>
-        </div>
-        
-        {topFileTypes.length > 0 ? (
-          <div className="file-types-list">
-            {topFileTypes.map(([type, count]) => (
-              <div key={type} className="file-type-item">
-                <div className="file-type-info">
-                  <div className="file-type-dot"></div>
-                  <span className="file-type-name">{type}</span>
-                </div>
-                <div className="file-type-count">
-                  <span className="file-count-number">{count}</span>
-                  <span className="file-count-label">files</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <p>No files uploaded yet</p>
-          </div>
-        )}
       </div>
     </div>
   );

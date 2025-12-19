@@ -8,207 +8,157 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">
-            <svg className="hero-logo" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z"/>
-              <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6"/>
+          <div style={{ marginBottom: '2rem' }}>
+            <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '3rem', height: '3rem', margin: '0 auto', color: 'var(--soft-charcoal)' }}>
+              <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z" />
+              <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6" />
             </svg>
-            SecureCloudFS
+          </div>
+
+          <h1 className="hero-title">
+            Your files, <em>encrypted</em> before they leave your device
           </h1>
+
           <p className="hero-subtitle">
-            Your files, encrypted and secure in the cloud
+            A sanctuary for sensitive documents
           </p>
+
           <p className="hero-description">
-            SecureCloudFS encrypts your files <strong>before</strong> they leave your computer. 
-            Even we can't see your data.
+            Your files are encrypted on your device before upload. We never see your data.
           </p>
-          
+
           <div className="hero-buttons">
-            <button 
-              className="btn btn-primary btn-large"
+            <button
+              className="btn btn-large"
               onClick={() => navigate('/login')}
             >
-              Get Started Free
+              BEGIN
             </button>
-            <button 
-              className="btn btn-secondary btn-large"
+            <button
+              className="btn btn-outline btn-large"
               onClick={() => {
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              Learn More
+              EXPLORE
             </button>
-          </div>
-
-          <div className="hero-note">
-            <p><strong>Important:</strong> To upload files, you need the desktop client. The web app is for viewing and downloading only.</p>
           </div>
 
           {/* Quick Start Commands */}
           <div className="commands-section">
-            <h3 className="commands-title">Quick Start Commands</h3>
+            <h3 className="commands-title">Quick Start</h3>
             <div className="command-steps">
               <div className="command-step">
-                <span className="step-label">1. Download the client</span>
+                <span className="step-label">1. Download client</span>
                 <code className="command-code">curl -O https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/securecloud.py</code>
               </div>
               <div className="command-step">
                 <span className="step-label">2. Install dependencies</span>
-                <code className="command-code">pip install requests cryptography watchdog python-dotenv oci supabase</code>
+                <code className="command-code">pip install requests cryptography watchdog oci supabase</code>
               </div>
               <div className="command-step">
-                <span className="step-label">3. Upload and sync a folder</span>
-                <code className="command-code">python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder</code>
+                <span className="step-label">3. Sync your folder</span>
+                <code className="command-code">python3 securecloud.py sync --email your@email.com --password yourpassword --folder ./Documents</code>
               </div>
-            </div>
-            <div className="github-link">
-              <a href="https://github.com/Jozefhdez/SecureCloudFS" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                View on GitHub
-              </a>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Section Divider */}
-      <div className="section-divider"></div>
 
       {/* Features Section */}
       <section id="features" className="features-section">
-        <div className="features-container">
-          <h2 className="section-title">Why SecureCloudFS?</h2>
-          
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon blue">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                </svg>
-              </div>
-              <h3>True Privacy</h3>
-              <p>Files are encrypted <em>before</em> upload with your password. We never see your data.</p>
-            </div>
+        <h2 className="section-title">
+          Security as <em>material</em>
+        </h2>
 
-            <div className="feature-card">
-              <div className="feature-icon green">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
-                </svg>
-              </div>
-              <h3>Access Anywhere</h3>
-              <p>Web interface works on any device. Access your files from anywhere with internet.</p>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
             </div>
+            <h3>Privacy First</h3>
+            <p>
+              Encryption happens <em>client-side</em>, before files touch the network.
+              Your password never leaves your machine.
+            </p>
+          </div>
 
-            <div className="feature-card">
-              <div className="feature-icon purple">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
-              </div>
-              <h3>Auto Sync</h3>
-              <p>Desktop client syncs folders automatically. Set it and forget it.</p>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
             </div>
+            <h3>Universal Access</h3>
+            <p>
+              View and download from any device. Your encrypted archive,
+              accessible wherever you have connectivity.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </div>
+            <h3>Automatic Sync</h3>
+            <p>
+              Set a folder and step away. The desktop client quietly maintains
+              synchronization, unobtrusive and persistent.
+            </p>
           </div>
         </div>
       </section>
-
-      {/* Section Divider */}
-      <div className="section-divider"></div>
 
       {/* How It Works Section */}
       <section className="how-it-works-section">
-        <div className="how-it-works-container">
-          <h2 className="section-title">How It Works</h2>
-          
-          <div className="steps-grid">
-            <div className="step-card">
-              <div className="step-number">1</div>
-              <h3>Create Account</h3>
-              <p>Sign up for free using the web app. No credit card required.</p>
-            </div>
+        <h2 className="section-title">
+          How it <em>works</em>
+        </h2>
 
-            <div className="step-card">
-              <div className="step-number">2</div>
-              <h3>Download Client</h3>
-              <p>Download the Python client script to upload and sync files securely.</p>
-            </div>
-
-            <div className="step-card">
-              <div className="step-number">3</div>
-              <h3>Upload & Sync</h3>
-              <p>Files are encrypted on your computer before upload. Access them anywhere.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section Divider */}
-      <div className="section-divider"></div>
-
-      {/* Why Two Apps Section */}
-      <section className="explanation-section">
-        <div className="explanation-container">
-          <h2 className="section-title">Why Two Apps?</h2>
-          
-          <div className="explanation-content">
-            <div className="explanation-card">
-              <div className="explanation-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9.585 11.692h4.328s2.432.039 2.432-2.35V5.391S16.714 3 11.936 3C7.362 3 7.647 4.983 7.647 4.983l.006 2.055h4.363v.617H5.92s-2.927-.332-2.927 4.282 2.555 4.45 2.555 4.45h1.524v-2.141s-.083-2.554 2.513-2.554zm-.056-5.74a.784.784 0 1 1 0-1.567.784.784 0 0 1 0 1.567z"/>
-                  <path d="M14.415 12.308h-4.328s-2.432-.04-2.432 2.35v3.951S7.286 21 12.064 21c4.574 0 4.289-1.983 4.289-1.983l-.006-2.055h-4.363v-.617h6.096s2.927.332 2.927-4.282-2.555-4.45-2.555-4.45h-1.524v2.141s.083 2.554-2.513 2.554zm.056 5.74a.784.784 0 1 1 0 1.567.784.784 0 0 1 0-1.567z"/>
-                </svg>
-              </div>
-              <div className="explanation-text">
-                <h3>Desktop Client</h3>
-                <p><strong>For Uploading & Syncing</strong></p>
-                <p>Files must be encrypted on <em>your computer</em> before upload for true security. This ensures that even we cannot see your data, maintaining zero-knowledge privacy.</p>
-              </div>
-            </div>
-
-            <div className="explanation-card">
-              <div className="explanation-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z"/>
-                  <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6"/>
-                </svg>
-              </div>
-              <div className="explanation-text">
-                <h3>Web App</h3>
-                <p><strong>For Viewing & Downloading</strong></p>
-                <p>Access your encrypted files from any device with internet. Download and decrypt files securely in your browser when you need them.</p>
-              </div>
-            </div>
+        <div className="steps-grid">
+          <div className="step-card">
+            <div className="step-number">I</div>
+            <h3>Create Account</h3>
+            <p>
+              Begin with the web interface. A brief registration,
+              no billing information required.
+            </p>
           </div>
 
-          <div className="explanation-note">
-            <p><strong>The Result:</strong> Maximum security with maximum convenience. Your files are always encrypted, but you can access them from anywhere.</p>
+          <div className="step-card">
+            <div className="step-number">II</div>
+            <h3>Install Client</h3>
+            <p>
+              Download a single Python script. Dependencies install
+              automatically—minimal friction by design.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* Section Divider */}
-      <div className="section-divider"></div>
-
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-container">
-          <h2>Ready to Secure Your Files?</h2>
-          <button 
-            className="btn btn-cta btn-large"
-            onClick={() => navigate('/login')}
-          >
-            Get Started Free
-          </button>
+          <div className="step-card">
+            <div className="step-number">III</div>
+            <h3>Begin Syncing</h3>
+            <p>
+              Point the client to your folder. Encryption and upload
+              commence, quiet and thorough.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
-          <p>Made by <a href="https://www.linkedin.com/in/jozefhdez/" target="_blank" rel="noopener noreferrer">Jozef Hernandez</a></p>
+      <footer className="footer" style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="footer-container" style={{ padding: '6rem 3rem', borderTop: '1px solid var(--stone-light)', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--muted-text)', marginBottom: '0.5rem' }}>
+            Made by{' '}
+            <a href="https://www.linkedin.com/in/jozefhdez/" target="_blank" rel="noopener noreferrer"
+              style={{ textDecoration: 'none', borderBottom: '1px solid var(--stone)', color: 'var(--soft-charcoal)' }}>
+              Jozefhdez
+            </a>
+          </p>
         </div>
       </footer>
     </div>

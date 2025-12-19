@@ -1,6 +1,5 @@
 import type { FileMetadata } from '../types';
 
-// Use environment variable for API URL, fallback to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 export class SecureCloudAPI {
@@ -34,7 +33,7 @@ export class SecureCloudAPI {
       const response = await fetch(`${API_BASE_URL}/files`, {
         headers: this.getHeaders(),
       });
-      
+
       console.log('[NETWORK] API connection test:', response.status);
       return response.ok;
     } catch (error) {
@@ -54,7 +53,7 @@ export class SecureCloudAPI {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         this.setCredentials(email, password);
         return { success: true, user: data.user };
@@ -75,7 +74,7 @@ export class SecureCloudAPI {
 
       console.log('[FILES] API response status:', response.status);
       const data = await response.json();
-      
+
       if (data.success) {
         console.log('[SUCCESS] Files obtained:', data.files.length);
         return data.files;
@@ -117,13 +116,13 @@ export class SecureCloudAPI {
       // Create blob and download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
+
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      
+
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {

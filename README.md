@@ -3,87 +3,61 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
 
-**Your files, encrypted and secure in the cloud**
+End-to-end encrypted cloud file storage with AES-256 encryption. Files are encrypted on your device before upload.
 
-SecureCloudFS encrypts your files with AES-256 *before* they leave your computer. Even we can't see your data.
+> **Important**: The web app is for viewing and downloading only. Use the desktop client to upload files.
 
-> **⚠️ Important**: To upload files, you must download and run the desktop client. The web app is only for viewing and downloading existing files.
+## Quick Start
 
-## How to Use SecureCloudFS
-
-### Web App (View & Download Only)
-**The web app CANNOT upload files. Use the desktop client below for uploads.**
-
-Access your files from any browser:
-
-** [Open SecureCloudFS Web App](https://secure-cloud-fs.vercel.app)**
-
-- ✅ View all your encrypted files
-- ✅ Download files to your device
-- ✅ Works on any device with internet
+### Web App
+Access at [secure-cloud-fs.vercel.app](https://secure-cloud-fs.vercel.app)
+- View encrypted files
+- Download files
+- Works on any device
 
 ### Desktop Client
-**You need this to upload files or sync folders.**
-
-Download one file and run:
+Required for uploading and syncing files.
 
 ```bash
-# 1. Download the client (one file only)
+# Download client
 curl -O https://raw.githubusercontent.com/Jozefhdez/SecureCloudFS/main/securecloud.py
 
-# 2. Install dependencies (first time only)
+# Install dependencies
 pip install requests cryptography watchdog python-dotenv oci supabase
 
-# 3. Create an account
-https://secure-cloud-fs.vercel.app/
+# Create account at https://secure-cloud-fs.vercel.app/
 
-# 4. Upload and sync a folder
+# Upload and sync folder
 python3 securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
 ```
 
-**Why both?** Files are encrypted on your computer before upload, so we need local software for security.
-## Why SecureCloudFS?
+## Security
 
-- **True Privacy**: Files are encrypted *before* upload with your password
-- **Access Anywhere**: Web interface works on any device
-- **Auto Sync**: Desktop client syncs folders automatically (optional)
-- **Free to Use**: No credit card required
-- **Zero Knowledge**: We cannot see your files, even if we wanted to
+- AES-256 encryption
+- Client-side encryption before upload
+- Zero-knowledge architecture
+- Password-derived encryption keys
+- User data isolation with Row-Level Security
 
-## How Secure Is It?
+## Features
 
-- **AES-256 encryption** (military grade)
-- **Your password = your key** (we never see it)
-- **Encrypted before upload** (not even our servers can read your files)
-- **User isolation** (each user's data is completely separate)
-
-## Perfect For
-
-- **Personal backup** of important documents
-- **Cross-device file access** (work, home, travel)
-- **Sensitive documents** that need encryption
-- **Automatic folder syncing** for photographers, developers, etc.
+- End-to-end encryption
+- Cross-device access
+- Automatic folder syncing
+- Web-based file management
+- No credit card required
 
 ## FAQ
 
-**Q: Can I use just the web app?**
-A: Only for viewing and downloading files. You need the desktop client to upload files securely.
-
 **Q: Why can't I upload through the web?**
-A: Files must be encrypted on YOUR computer before upload for true security. 
+A: Client-side encryption requires local software to ensure files are encrypted before leaving your device.
 
-**Q: Do I need to install anything?**
-A: Just Python and one small script. No complex setup required.
-
-**Q: Can you see my files?**
-A: No. They're encrypted with your password before leaving your computer.
+**Q: Can you access my files?**
+A: No. Files are encrypted with your password before upload. We cannot decrypt them.
 
 **Q: What if I forget my password?**
-A: Your files become unrecoverable. We cannot reset passwords.
-
-**Q: Is it really free?**
-A: Yes, the service is free to use.
+A: Files become permanently unrecoverable. Password reset is not possible.
 
 ---
 
-**Made by Jozef Hernandez** | [LinkedIn](https://www.linkedin.com/in/jozefhdez/)
+Made by Jozef Hernandez | [LinkedIn](https://www.linkedin.com/in/jozefhdez/)

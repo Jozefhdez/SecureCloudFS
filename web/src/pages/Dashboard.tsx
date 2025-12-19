@@ -16,7 +16,6 @@ export default function DashboardPage() {
   useEffect(() => {
     const initializeDashboard = async () => {
       try {
-        // Obtener información del usuario
         const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
 
         if (authError || !authUser) {
@@ -30,7 +29,6 @@ export default function DashboardPage() {
           created_at: authUser.created_at || ''
         });
 
-        // Configurar API con credenciales (si están disponibles)
         const storedCredentials = sessionStorage.getItem('scfs_credentials');
         if (storedCredentials) {
           const { email, password } = JSON.parse(storedCredentials);
@@ -39,7 +37,6 @@ export default function DashboardPage() {
           console.log('[API] Credentials configured');
         }
 
-        // Cargar archivos del usuario
         await loadFiles(authUser.id);
       } catch (err) {
         console.error('Error initializing dashboard:', err);
@@ -54,20 +51,17 @@ export default function DashboardPage() {
 
   const loadFiles = async (userId: string) => {
     try {
-      // Intentar usar la API local primero
       const { SecureCloudAPI } = await import('../services/apiService');
-      
+
       if (SecureCloudAPI.isAPIAvailable()) {
         const apiFiles = await SecureCloudAPI.getFiles();
         setFiles(apiFiles);
       } else {
-        // Fallback a Supabase directo
         const userFiles = await FileService.getFilesByUser(userId);
         setFiles(userFiles);
       }
     } catch (err) {
       console.error('Error loading files:', err);
-      // Intentar fallback a Supabase
       try {
         const userFiles = await FileService.getFilesByUser(userId);
         setFiles(userFiles);
@@ -80,16 +74,14 @@ export default function DashboardPage() {
 
   const handleFileDelete = async (fileId: string) => {
     try {
-      // Intentar usar la API local primero
       const { SecureCloudAPI } = await import('../services/apiService');
-      
+
       if (SecureCloudAPI.isAPIAvailable()) {
         await SecureCloudAPI.deleteFile(fileId);
       } else {
-        // Fallback a Supabase directo
         await FileService.deleteFile(fileId);
       }
-      
+
       setFiles(files.filter(file => file.id !== fileId));
     } catch (err) {
       console.error('Error deleting file:', err);
@@ -100,13 +92,13 @@ export default function DashboardPage() {
   const handleFileDownload = async (file: FileMetadata) => {
     try {
       console.log('[DOWNLOAD] Attempting to download:', file.filename);
-      
+
       // Try using local API first
       const { SecureCloudAPI } = await import('../services/apiService');
-      
+
       console.log('[CHECK] Verifying API availability...');
       const isAvailable = SecureCloudAPI.isAPIAvailable();
-      
+
       if (isAvailable) {
         console.log('[SUCCESS] API available, downloading...');
         await SecureCloudAPI.downloadFile(file.id, file.filename);
@@ -168,12 +160,18 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="dashboard-header">
         <div>
-          <h1 className="dashboard-title">SecureCloudFS</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+            <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '2rem', height: '2rem', color: 'var(--soft-charcoal)' }}>
+              <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z" />
+              <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6" />
+            </svg>
+            <h1 className="dashboard-title" style={{ marginBottom: 0 }}>SecureCloudFS</h1>
+          </div>
           <div className="user-info">
             <span className="user-email">Welcome, {user?.email}</span>
           </div>
         </div>
-        
+
         <div className="user-info">
           <button
             onClick={refreshFiles}
@@ -185,10 +183,10 @@ export default function DashboardPage() {
             </svg>
             Refresh
           </button>
-          
+
           <button
             onClick={handleLogout}
-            className="btn btn-danger header-btn"
+            className="btn btn-outline header-btn"
           >
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -202,8 +200,8 @@ export default function DashboardPage() {
       <Stats files={files} />
 
       {/* File List */}
-      <FileList 
-        files={files} 
+      <FileList
+        files={files}
         onFileDelete={handleFileDelete}
         onFileDownload={handleFileDownload}
       />

@@ -1,20 +1,11 @@
-# Environment variables (with real credentials)
+# Environment variables
 .env
 .env.local
 .env.production
-.env.railway
-
-# Keep only examples as templates
-!.env.example
-!.env.client
-!web/.env.example
-!web/.env.production.example
 
 # OCI credentials and keys
 *.pem
 oci_config
-oci_key.pem
-private_key.pem
 
 # Testing files and environments
 test_env/
@@ -52,94 +43,32 @@ env/
 ENV/
 .venv/
 
-# Logs
-*.log
-securecloud.log
-logs/
+# OS files
+.DS_Store
+Thumbs.db
 
 # IDEs
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Logs
+*.log
 
-# Temporary files
-*.tmp
-*.temp
-.tmp/
-.temp/
-
-# Test files
+# Testing
 test_*/
 *.test
 coverage/
 
-# Encrypted files (local testing)
-*.enc
-.encrypted/
-
-# OCI credentials (backup safety)
-*.pem
-oci_config
-
-# Node.js (for web frontend)
+# Node.js
 web/node_modules/
 web/dist/
 web/.env
 web/.env.local
 web/.env.production
-web/.env.staging
-web/npm-debug.log*
-web/yarn-debug.log*
-web/yarn-error.log*
-
-# Build outputs
-web/build/
-web/dist/
 
 # Cache
 .cache/
-.parcel-cache/
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Database and SQL files (keep schema as reference)
+# Database
 *.db
 *.sqlite
-*.sqlite3
-backup.sql
-dump.sql
-
-# Additional testing and development files
-debug_*
-*.debug
-test_upload_*
-sample_*
-example_upload.*
-
-# Local testing files (don't push to GitHub)
-.env
-.env.local
-*.pem
-test_backend.py
-test_file.*
-sample_*
-debug_*
-
-# Remove these files from production
-oci_key.pem
-local_test*

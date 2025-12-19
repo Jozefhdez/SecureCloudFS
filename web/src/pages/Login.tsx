@@ -2,7 +2,6 @@ import { useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useNavigate } from "react-router-dom";
 
-// Security validation patterns
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`\s]{6,128}$/;
 const SQL_INJECTION_PATTERNS = [
@@ -13,14 +12,12 @@ const SQL_INJECTION_PATTERNS = [
 ];
 
 const validateInput = (input: string, type: 'email' | 'password'): { isValid: boolean; error?: string } => {
-  // Check for SQL injection patterns
   for (const pattern of SQL_INJECTION_PATTERNS) {
     if (pattern.test(input)) {
       return { isValid: false, error: 'Invalid characters detected. Please use only allowed characters.' };
     }
   }
-  
-  // Type-specific validation
+
   if (type === 'email') {
     if (!EMAIL_REGEX.test(input)) {
       return { isValid: false, error: 'Please enter a valid email address.' };
@@ -36,7 +33,7 @@ const validateInput = (input: string, type: 'email' | 'password'): { isValid: bo
       return { isValid: false, error: 'Password contains invalid characters.' };
     }
   }
-  
+
   return { isValid: true };
 };
 
@@ -54,7 +51,7 @@ export default function LoginPage() {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     setError(null);
-    
+
     if (value.length > 0) {
       const validation = validateInput(value, 'email');
       setEmailError(validation.isValid ? null : validation.error || 'Invalid email');
@@ -66,7 +63,7 @@ export default function LoginPage() {
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     setError(null);
-    
+
     if (value.length > 0) {
       const validation = validateInput(value, 'password');
       setPasswordError(validation.isValid ? null : validation.error || 'Invalid password');
@@ -121,7 +118,7 @@ export default function LoginPage() {
         if (data.session) {
           // Save credentials for local API
           sessionStorage.setItem('scfs_credentials', JSON.stringify({ email, password }));
-          
+
           // Configure credentials for local API
           try {
             const { SecureCloudAPI } = await import('../services/apiService');
@@ -129,7 +126,7 @@ export default function LoginPage() {
           } catch (err) {
             console.log('[WARNING] Local API not available, using Supabase only');
           }
-          
+
           navigate("/dashboard");
         } else {
           setError("Could not sign in: invalid session.");
@@ -166,19 +163,15 @@ export default function LoginPage() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <button 
-            className="btn-back"
-            onClick={() => navigate('/')}
-            title="Back to home"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+            <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '2rem', height: '2rem', color: 'var(--soft-charcoal)' }}>
+              <path d="M18.944 11.112C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5h11c2.206 0 4-1.794 4-4 0-1.657-1.007-3.085-2.446-3.685l-.61-.203z" />
+              <path d="M12 10.5l-3-3m3 3 3-3m-3 3v6" />
             </svg>
-          </button>
-          
-          <h1 className="login-title">
-            SecureCloudFS
-          </h1>
+            <h1 className="login-title">
+              SecureCloudFS
+            </h1>
+          </div>
         </div>
 
         {error && (
@@ -186,7 +179,7 @@ export default function LoginPage() {
             {error}
           </div>
         )}
-        
+
         {info && (
           <div className="success-message">
             {info}
@@ -257,6 +250,15 @@ export default function LoginPage() {
             }}
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+          </button>
+        </div>
+
+        <div className="login-spacing">
+          <button
+            className="btn btn-outline btn-full"
+            onClick={() => navigate('/')}
+          >
+            Go back
           </button>
         </div>
       </div>
