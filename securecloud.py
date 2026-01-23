@@ -57,10 +57,12 @@ import base64
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-# Configuration, Dont change this
-API_BASE_URL = "https://web-production-916e9.up.railway.app/api"
-SUPABASE_URL = "https://fvnicaqyshvunwolriqn.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bmljYXF5c2h2dW53b2xyaXFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1OTg1MTUsImV4cCI6MjA2NzE3NDUxNX0.6zxPeWCF9P6bsG5hiWhJyUffEvmBAcDp_6hfaeheeec"
+# Configuration
+# Note: keys should go here, since this is a toy project i wont add any real production keys here,
+# but u can build the entire project and add your own keys.
+API_BASE_URL = "https://railway.app/api"
+SUPABASE_URL = "https://supabase.co"
+SUPABASE_KEY = "supabase_key_here"
 
 class SecureCloudClient:
     def __init__(self, email: str, password: str):
@@ -68,7 +70,7 @@ class SecureCloudClient:
         self.password = password
         self.session = requests.Session()
         
-        # Setup encryption
+        # setup encryption
         self.password_bytes = password.encode()
         salt = hashlib.sha256(self.password_bytes).digest()[:16]
         kdf = PBKDF2HMAC(
@@ -275,12 +277,12 @@ def sync_folder(client: SecureCloudClient, folder_path: str):
         for root, dirs, files in os.walk(directory):
             for file in files:
                 file_path = os.path.join(root, file)
-                # Skip hidden files and system files
+                # skip hidden files and system files
                 if not os.path.basename(file).startswith('.'):
                     print(f"Found existing file: {os.path.relpath(file_path, folder_path)}")
                     client.upload_file(file_path)
     
-    # Perform initial sync BEFORE starting the observer
+    # perform initial sync BEFORE starting the observer
     sync_existing_files(folder_path)
     
     print("-" * 50)
@@ -288,12 +290,12 @@ def sync_folder(client: SecureCloudClient, folder_path: str):
     print("Now monitoring for changes. Press Ctrl+C to stop.")
     print("-" * 50)
     
-    # Create and start observer AFTER initial sync is complete
+    # create and start observer AFTER initial sync is complete
     event_handler = FolderSyncHandler(client)
     observer = Observer()
     observer.schedule(event_handler, folder_path, recursive=True)
     
-    # Add a small delay to ensure initial sync is truly complete
+    # ddd a small delay to ensure initial sync is truly complete
     time.sleep(2)
     
     observer.start()
@@ -308,9 +310,6 @@ def sync_folder(client: SecureCloudClient, folder_path: str):
 
 def main():
     print("SecureCloudFS Client")
-    print("======================")
-    print("Secure encrypted file storage")
-    print("Web App: https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/")
     print()
     
     parser = argparse.ArgumentParser(description='SecureCloudFS Client')
