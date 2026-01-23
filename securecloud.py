@@ -1,20 +1,14 @@
 #!/usr/bin/env python3
 """
 SecureCloudFS Client
-===================
-Secure encrypted file storage client
 
 Download and run this single file to use SecureCloudFS.
-No installation or setup required beyond Python dependencies.
 
 Usage:
   python securecloud.py list --email your@email.com --password yourpass
   python securecloud.py upload --email your@email.com --password yourpass --file document.pdf
   python securecloud.py download --email your@email.com --password yourpass --file document.pdf --output ./document.pdf
   python securecloud.py sync --email your@email.com --password yourpass --folder /path/to/folder
-
-Author: Jozef Hernandez
-Website: https://secure-cloud-iof1dxs3d-jozefhdezs-projects.vercel.app/
 """
 
 import os
@@ -29,7 +23,7 @@ from typing import Dict, List, Optional
 
 # Check and install dependencies
 def check_dependencies():
-    """Check if required packages are installed, install if missing"""
+    """Ensure required packages are installed."""
     required_packages = {
         'requests': 'requests>=2.28.0',
         'cryptography': 'cryptography>=41.0.0',
@@ -55,7 +49,6 @@ def check_dependencies():
 # Check dependencies first
 check_dependencies()
 
-# Now import the packages
 import requests
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -64,7 +57,7 @@ import base64
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-# Configuration - Users don't need to change this
+# Configuration, Dont change this
 API_BASE_URL = "https://web-production-916e9.up.railway.app/api"
 SUPABASE_URL = "https://fvnicaqyshvunwolriqn.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bmljYXF5c2h2dW53b2xyaXFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1OTg1MTUsImV4cCI6MjA2NzE3NDUxNX0.6zxPeWCF9P6bsG5hiWhJyUffEvmBAcDp_6hfaeheeec"
@@ -103,11 +96,11 @@ class SecureCloudClient:
                 return True
             else:
                 error = response.json().get("error_description", "Authentication failed")
-                print(f"❌ {error}")
+                print(f"Authentication failed: {error}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Connection error: {e}")
+            print(f"Connection error: {e}")
             return False
     
     def _api_request(self, method: str, endpoint: str, **kwargs):
@@ -149,7 +142,7 @@ class SecureCloudClient:
         
         print(f"Encrypting {os.path.basename(file_path)}...")
         
-        # Read and encrypt file
+        # read and encrypt file
         with open(file_path, 'rb') as f:
             file_data = f.read()
         
@@ -158,7 +151,7 @@ class SecureCloudClient:
         
         print(f"Uploading {os.path.basename(file_path)}...")
         
-        # Prepare multipart upload
+        # prepare multipart upload
         files = {
             'file': (os.path.basename(file_path), encrypted_data, 'application/octet-stream')
         }
@@ -220,10 +213,9 @@ class SecureCloudClient:
             print(f"Decrypting {filename}...")
             
             try:
-                # Decrypt the file data
+                # decrypt the file data
                 decrypted_data = self.fernet.decrypt(response.content)
                 
-                # Save to output path
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)
                 with open(output_path, 'wb') as f:
                     f.write(decrypted_data)
@@ -241,19 +233,19 @@ class SecureCloudClient:
 class FolderSyncHandler(FileSystemEventHandler):
     def __init__(self, client: SecureCloudClient):
         self.client = client
-        self.upload_debounce = {}  # Track recent uploads to avoid duplicates
+        self.upload_debounce = {}  # track recent uploads to avoid duplicates
     
     def _should_upload(self, file_path):
         """Check if file should be uploaded (debounce mechanism)"""
         import time
         current_time = time.time()
         
-        # Skip if file was uploaded in the last 5 seconds
+        # skip if file was uploaded in the last 5 seconds
         if file_path in self.upload_debounce:
             if current_time - self.upload_debounce[file_path] < 5:
                 return False
         
-        # Record upload time
+        # record upload time
         self.upload_debounce[file_path] = current_time
         return True
     
@@ -277,7 +269,7 @@ def sync_folder(client: SecureCloudClient, folder_path: str):
     print("Starting initial sync of existing files...")
     print("-" * 50)
     
-    # Initial sync: upload all existing files
+    # initial sync: upload all existing files
     def sync_existing_files(directory):
         """Recursively sync all existing files in directory"""
         for root, dirs, files in os.walk(directory):
@@ -323,28 +315,28 @@ def main():
     
     parser = argparse.ArgumentParser(description='SecureCloudFS Client')
     
-    # Add subcommands first
+    # add subcommands first
     subparsers = parser.add_subparsers(dest='command', help='Commands', required=True)
     
-    # List command
+    # list command
     list_parser = subparsers.add_parser('list', help='List your files')
     list_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
     list_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     
-    # Upload command
+    # upload command
     upload_parser = subparsers.add_parser('upload', help='Upload a file')
     upload_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
     upload_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     upload_parser.add_argument('--file', required=True, help='File to upload')
     
-    # Download command
+    # download command
     download_parser = subparsers.add_parser('download', help='Download a file')
     download_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
     download_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
     download_parser.add_argument('--file', required=True, help='Filename to download')
     download_parser.add_argument('--output', required=True, help='Output path')
     
-    # Sync command
+    # sync command
     sync_parser = subparsers.add_parser('sync', help='Sync a folder automatically')
     sync_parser.add_argument('--email', required=True, help='Your SecureCloudFS email')
     sync_parser.add_argument('--password', required=True, help='Your SecureCloudFS password')
@@ -357,7 +349,7 @@ def main():
     if args.command == 'list':
         files = client.list_files()
         if files:
-            print(f"📁 Your files ({len(files)} total):")
+            print(f"Your files ({len(files)} total):")
             print("-" * 40)
             for file_data in files:
                 print(f"{file_data['filename']}")
