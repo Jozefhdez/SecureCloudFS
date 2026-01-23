@@ -35,8 +35,6 @@ python3 securecloud.py sync --email your@email.com --password yourpass --folder 
 
 - This repository is a toy/example project for local experimentation and is not a
 	production service. The included client and sample keys are placeholders.
-- You must provide your own service keys and configuration to run uploads or
-	sync features. Do not use any embedded keys in production.
 - To run the client locally, set environment variables (or a local `.env`) with
 	your keys and endpoints, then run the client as shown above.
 
